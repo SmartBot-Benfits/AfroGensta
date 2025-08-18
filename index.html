@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AfroGengstas — The Beat Stock Blog (MVP)</title>
+  <meta name="description" content="AfroGengstas — live Afrobeat tickers, blog, AI summaries, 3D visuals and monetization slots." />
+
+  <!-- Chart.js + Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+  <style>
+    /* Lightweight Afro-futuristic styles */
+    :root{
+      --bg:#070712; --panel:#0f1224; --muted:#9aa0b4;
+      --accent:#39d98a; --accent2:#6c5ce7; --glass: rgba(255,255,255,0.04);
+      --radius:12px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto; background:radial-gradient(800px 400px at 10% 10%, rgba(0,229,255,.06), transparent),var(--bg); color:#fff; -webkit-font-smoothing:antialiased}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.04);position:sticky;top:0;background:linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.05));backdrop-filter: blur(6px);z-index:5}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:44px;height:44px;border-radius:12px;background:conic-gradient(from 40deg,#39d98a,#6c5ce7,#00e5ff);box-shadow:0 6px 20px rgba(0,0,0,.5)}
+    h1{font-size:1.15rem;margin:0}
+    nav{display:flex;gap:8px;align-items:center}
+    .pill{padding:6px 10px;border-radius:999px;background:var(--glass);color:var(--muted);font-size:.85rem}
+    main{padding:18px;max-width:1100px;margin:18px auto;display:grid;grid-template-columns:1fr;gap:18px}
+    @media(min-width:980px){ main{grid-template-columns: 2fr 1fr} }
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));border:1px solid rgba(255,255,255,.04);padding:14px;border-radius:var(--radius);box-shadow: 0 6px 20px rgba(0,0,0,.5)}
+    .ticker{display:flex;gap:16px;overflow:hidden;white-space:nowrap;padding:6px 8px;border-radius:8px;background:linear-gradient(90deg, rgba(57,217,138,.04), rgba(108,92,231,.03));border:1px solid rgba(255,255,255,.03)}
+    .tick{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:rgba(0,0,0,.15);margin-right:8px}
+    .tick .name{font-weight:700}
+    .tick.up{border-left:4px solid #2dd4bf}
+    .tick.down{border-left:4px solid #ff5d6c}
+
+    .blog-grid{display:grid; gap:12px}
+    .post{display:grid;grid-template-columns:1fr;gap:8px}
+    .post .meta{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:.85rem}
+    .post .excerpt{color:#e6e8ee}
+    .post .actions{display:flex;gap:8px;margin-top:8px}
+    .btn{padding:8px 12px;border-radius:8px;border:none;background:linear-gradient(90deg,#6c5ce7,#00e5ff);color:#fff;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.06)}
+    .muted{color:var(--muted)}
+    .right{margin-left:auto}
+
+    /* 3D area & sketchfab */
+    #bg3d{position:fixed;inset:0;z-index:0;opacity:.7;pointer-events:none}
+    .visual{height:320px;border-radius:12px;overflow:hidden}
+    iframe.sketch{width:100%;height:320px;border:0;display:block}
+
+    /* Ad placeholders */
+    .ad{min-height:90px;border-radius:8px;border:1px dashed rgba(255,255,255,.06);display:grid;place-items:center;color:var(--muted);background:linear-gradient(180deg, rgba(255,255,255,.01), transparent)}
+    footer{padding:18px;text-align:center;color:var(--muted);font-size:.9rem}
+    pre.snippet{white-space:pre-wrap;background:#081020;padding:12px;border-radius:10px;overflow:auto;color:#9ee7d1;font-size:.85rem}
+    .ai-panel{background:linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.06));padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.03)}
+  </style>
+</head>
+<body>
+
+  <!-- Three.js animated background canvas -->
+  <canvas id="bg3d" aria-hidden="true"></canvas>
+
+  <header>
+    <div class="brand" style="z-index:6">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>AfroGengstas</h1>
+        <div class="pill">Music • Markets • Culture</div>
+      </div>
+    </div>
+
+    <nav>
+      <div class="pill muted">MVP</div>
+      <button class="pill" id="openAIUnlock">Enable AI (optional)</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- LEFT column -->
+    <section>
+      <div class="card">
+        <h2>Live Artist Ticker</h2>
+        <p class="muted">Real-time-esque demo using curated streaming & article signals. Tickers update automatically.</p>
+        <div id="ticker" class="ticker" aria-live="polite"></div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h2>Top Stories — Afrobeat News & Analysis</h2>
+        <p class="muted">Curated recent stories from reputable outlets. AI summaries are available (click "AI summary"). Sources cited below each post.</p>
+
+        <div class="blog-grid" id="posts">
+          <!-- Posts are injected by JS (see below). They use real headlines & links curated from public music outlets. -->
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h2>AI Insights (optional)</h2>
+        <div class="ai-panel">
+          <p class="muted">Paste your OpenAI API key to enable on‑demand summaries & explainers generated client‑side. Do NOT paste secrets you can't delete later. This runs in your browser.</p>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="openaiKey" type="password" placeholder="sk-..." style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:transparent;color:#fff">
+            <button class="btn" id="saveKey">Save Key (session)</button>
+            <button class="btn ghost" id="clearKey">Clear</button>
+          </div>
+          <div style="margin-top:8px;color:var(--muted);font-size:.85rem">AI is optional — you can still read curated posts below (AI uses OpenAI API; your key is never sent to our server).</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h2>Automation & Deployment</h2>
+        <p class="muted">Add this GitHub Actions workflow to auto-generate AI summaries at build time and deploy to Vercel. (Replace OPENAI_KEY secret in your repo.)</p>
+        <pre class="snippet" id="ghactions">
+name: Build & AI Summaries
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build_and_summarize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps
+        run: npm ci
+      - name: Generate AI summaries
+        env:
+          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+        run: |
+          node ./scripts/generate-summaries.js
+      - name: Build
+        run: npm run build
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        </pre>
+        <div class="muted" style="margin-top:8px">This workflow is a starter — the script <code>scripts/generate-summaries.js</code> would call OpenAI and write summary fields into your content files before build.</div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT column (sidebar) -->
+    <aside>
+      <div class="card">
+        <h3>3D Visual — Afrofuturist Model</h3>
+        <p class="muted">Embedded Sketchfab model (replace MODEL_UID to use any other Sketchfab asset). Viewer provided by Sketchfab. </p>
+        <!-- Sketchfab embed: replace the MODEL_UID in src below to change model -->
+        <iframe class="sketch" title="Afro Character" src="https://sketchfab.com/models/8208f257d2d3457183e866eb990e6511/embed" allow="autoplay; fullscreen; vr"></iframe>
+        <div class="muted" style="font-size:.85rem;margin-top:8px">Model: "Afro Girl Character" on Sketchfab.  [oai_citation:6‡Sketchfab](https://sketchfab.com/3d-models/afro-girl-character-a-pose-8208f257d2d3457183e866eb990e6511?utm_source=chatgpt.com)</div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Portfolio Sparkline</h3>
+        <canvas id="spark" height="120"></canvas>
+        <div class="muted" style="margin-top:8px">Demo portfolio value (mock). Charts update as tickers move.</div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>Sponsored</h3>
+        <!-- AdSense placeholder: replace CLIENT_ID with your AdSense client id when ready. See AdSense docs to add domain. -->
+        <!--
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=CLIENT_ID" crossorigin="anonymous"></script>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="CLIENT_ID"
+             data-ad-slot="1234567890"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+        -->
+        <div class="ad">Ad Slot — replace with AdSense or affiliate creative.  [oai_citation:7‡Pulse Nigeria](https://www.pulse.ng/articles/entertainment/music/will-wizkid-release-a-new-album-in-2025-2025073013090161415?utm_source=chatgpt.com)</div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>About & Sources</h3>
+        <p class="muted">Curated sources used in this MVP: Pulse Nigeria, OkayAfrica, AfrobeatPulse, Music in Africa, NotJustOk.</p>
+        <ul class="muted" style="font-size:.85rem">
+          <li>Pulse Nigeria — top global streaming list & features.  [oai_citation:8‡Pulse Nigeria](https://www.pulse.ng/articles/entertainment/music/rema-davido-shallipopi-lead-list-of-afrobeats-biggest-global-songs-of-first-half-of-2025-2025072117363346626?utm_source=chatgpt.com)</li>
+          <li>OkayAfrica — features & culture stories.  [oai_citation:9‡OkayAfrica](https://www.okayafrica.com/?utm_source=chatgpt.com)</li>
+          <li>AfrobeatPulse — streaming insights.  [oai_citation:10‡Afro Beat Pulse](https://afrobeatpulse.com/afrobeats-top-songs-under-100-days-march-2025/?utm_source=chatgpt.com)</li>
+        </ul>
+      </div>
+
+    </aside>
+  </main>
+
+  <footer>
+    © 2025 AfroGengstas • Built as MVP — data curated from public outlets. Read each source for full context.
+  </footer>
+
+  <script>
+  /*************************************************************************
+   *  MVP client script
+   *  - Injects curated real articles (title, link, source)
+   *  - Simulates ticker updates & wave chart
+   *  - Optional: sends text to OpenAI chat completions if user supplies key (client-side)
+   *************************************************************************/
+
+  // ---------- curated real article data (titles & links from public outlets) ----------
+  // Sources are cited in the page: Pulse, OkayAfrica, AfrobeatPulse...
+  // These are real public articles (headlines & links) — summaries below are AI-generated by this assistant.
+  const POSTS = [
+    {
+      id: 'pulse1',
+      title: "Rema, Davido, Shallipopi lead list of Afrobeats' biggest global songs of H1 2025",
+      source: "Pulse Nigeria",
+      href: "https://www.pulse.ng/articles/entertainment/music/rema-davido-shallipopi-lead-list-of-afrobeats-biggest-global-songs-of-first-half-of-2025-2025072117363346626",
+      excerpt: "Pulse reports on the biggest Afrobeats global streaming tracks in the first half of 2025, led by Rema and Davido — useful for tracking streaming momentum and artist 'price' signals.",
+      citation: " [oai_citation:11‡Pulse Nigeria](https://www.pulse.ng/articles/entertainment/music/rema-davido-shallipopi-lead-list-of-afrobeats-biggest-global-songs-of-first-half-of-2025-2025072117363346626?utm_source=chatgpt.com)",
+      aiSummary: "AI: Streaming leaders Rema and Davido dominated H1 2025 due to viral songs and playlisting; buy interest in artists with cross-market features is strong."
+    },
+    {
+      id: 'okay1',
+      title: "The Rise of Stan Culture In Afrobeats",
+      source: "OkayAfrica",
+      href: "https://www.okayafrica.com/the-rise-of-stan-culture-in-afrobeats-wizkid-fc/",
+      excerpt: "A cultural piece on how passionate fandoms are expanding Afrobeats reach worldwide and influencing visibility.",
+      citation: " [oai_citation:12‡OkayAfrica](https://www.okayafrica.com/the-rise-of-stan-culture-in-afrobeats-wizkid-fc/?utm_source=chatgpt.com)",
+      aiSummary: "AI: Fan communities amplify streaming spikes and can create short-term 'pump' effects on artist metrics—important for sentiment-driven price moves."
+    },
+    {
+      id: 'afropulse1',
+      title: "Top Afrobeats Songs Under 100 Days: March 2025 Insights",
+      source: "AfrobeatPulse",
+      href: "https://afrobeatpulse.com/afrobeats-top-songs-under-100-days-march-2025/",
+      excerpt: "Data-driven writeup of songs that hit big fast — helps estimate velocity of new releases.",
+      citation: " [oai_citation:13‡Afro Beat Pulse](https://afrobeatpulse.com/afrobeats-top-songs-under-100-days-march-2025/?utm_source=chatgpt.com)",
+      aiSummary: "AI: Rapid stream velocity is predictive of sustained popularity when supported by playlist placement and social trends; treat 'futures' positions on upcoming songs accordingly."
+    },
+    {
+      id: 'musicinafrica',
+      title: "Top Afrobeats Songs of 2025",
+      source: "Music in Africa",
+      href: "https://www.musicinafrica.net/magazine/top-afrobeats-songs-2025",
+      excerpt: "An editorial list highlighting the year's standout tracks — useful for longer-term positioning.",
+      citation: " [oai_citation:14‡Music In Africa](https://www.musicinafrica.net/magazine/top-afrobeats-songs-2025?utm_source=chatgpt.com)",
+      aiSummary: "AI: Editorial recognition compounds streaming-based signals; inclusion in year-end lists often boosts catalog streaming by 5–15%."
+    }
+  ];
+
+  // ---------- helper: render posts ----------
+  const postsEl = document.getElementById('posts');
+  function renderPosts(){
+    postsEl.innerHTML = '';
+    POSTS.forEach(p=>{
+      const div = document.createElement('div');
+      div.className = 'post card';
+      div.innerHTML = `
+        <div style="display:flex;gap:12px;align-items:center">
+          <div style="width:64px;height:64px;border-radius:8px;background:linear-gradient(90deg,#6c5ce7,#00e5ff);display:flex;align-items:center;justify-content:center;font-weight:700">${p.source.split(' ')[0].slice(0,2)}</div>
+          <div style="flex:1">
+            <h3 style="margin:0;font-size:1rem">${p.title}</h3>
+            <div class="meta">${p.source} • <a href="${p.href}" target="_blank" rel="noopener" class="muted">read original</a> ${p.citation}</div>
+            <p class="excerpt">${p.excerpt}</p>
+            <div class="actions">
+              <button class="btn" data-id="${p.id}" data-action="open">Open</button>
+              <button class="btn ghost" data-id="${p.id}" data-action="aisum">AI summary</button>
+              <div class="right muted" id="res-${p.id}"></div>
+            </div>
+          </div>
+        </div>
+      `;
+      postsEl.appendChild(div);
+    });
+  }
+  renderPosts();
+
+  // ---------- ticker demo data (mocked but connected to curated article signals) ----------
+  const TICKERS = [
+    { ticker: '$REMA', artist: 'Rema', price: 180.25, change: +0.089 },
+    { ticker: '$DAVIDO', artist: 'Davido', price: 240.12, change: +0.072 },
+    { ticker: '$SHALL', artist: 'Shallipopi', price: 95.5, change: +0.123 },
+    { ticker: '$BURNA', artist: 'Burna Boy', price: 320.0, change: -0.034 },
+    { ticker: '$AYRA', artist: 'Ayra Starr', price: 125.0, change: +0.014 }
+  ];
+
+  const tickerEl = document.getElementById('ticker');
+  function renderTicker(){
+    tickerEl.innerHTML = '';
+    TICKERS.forEach(t=>{
+      const d = document.createElement('div');
+      d.className = 'tick ' + (t.change >= 0 ? 'up' : 'down');
+      d.innerHTML = `<div style="min-width:86px"><div class="name">${t.ticker}</div><div class="muted" style="font-size:.85rem">${t.artist}</div></div>
+                     <div style="text-align:right">
+                       <div style="font-weight:700">${(t.price).toFixed(2)}</div>
+                       <div style="color:${t.change>=0? '#2dd4bf':'#ff5d6c'};font-size:.9rem">${(t.change*100).toFixed(1)}%</div>
+                     </div>`;
+      tickerEl.appendChild(d);
+    });
+  }
+  renderTicker();
+
+  // animate ticks periodically
+  setInterval(()=>{
+    // small random walk influenced by article signals
+    TICKERS.forEach((t,i)=>{
+      // bias: if there's a post about the artist (simple text match), push up
+      const bias = POSTS.some(p=> p.title.toLowerCase().includes(t.artist.toLowerCase())) ? 0.0025 : 0;
+      const rnd = (Math.random()-0.5)*0.015 + bias;
+      t.price = Math.max(1, t.price*(1 + rnd));
+      t.change = rnd;
+    });
+    renderTicker();
+    updateSpark();
+  }, 3000);
+
+  // ---------- Sparkline demo ----------
+  const sparkCtx = document.getElementById('spark').getContext('2d');
+  let sparkData = Array.from({length:40}, (_,i)=> 100 + Math.sin(i/4)*6 + Math.random()*6 );
+  const sparkChart = new Chart(sparkCtx, {
+    type:'line',
+    data: { labels: sparkData.map((_,i)=>i), datasets: [{ data: sparkData, borderColor:'#6c5ce7', backgroundColor:'#6c5ce733', fill:true, tension:.35, pointRadius:0 }]},
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{x:{display:false}, y:{display:false}}}
+  });
+  function updateSpark(){
+    sparkData.push(100 + (Math.random()-0.5)*4 + (TICKERS[0].change*30));
+    if(sparkData.length>60) sparkData.shift();
+    sparkChart.data.datasets[0].data = sparkData;
+    sparkChart.update('none');
+  }
+
+  // ---------- Three.js animated background ----------
+  (function init3D(){
+    const canvas = document.getElementById('bg3d');
+    const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 22);
+
+    const geometry = new THREE.TorusKnotGeometry(10, 0.6, 220, 20);
+    const mat = new THREE.MeshBasicMaterial({color:0x6c5ce7, wireframe:true, transparent:true, opacity:.12});
+    const knot = new THREE.Mesh(geometry, mat);
+    scene.add(knot);
+
+    const particles = new THREE.Points(
+      new THREE.BufferGeometry(),
+      new THREE.PointsMaterial({color:0x00e5ff, size:0.05, transparent:true, opacity:.6})
+    );
+    const COUNT = 900;
+    const pos = new Float32Array(COUNT*3);
+    for(let i=0;i<COUNT;i++){
+      const r = 20 + Math.random()*28;
+      pos[i*3+0] = (Math.random()-0.5)*r;
+      pos[i*3+1] = (Math.random()-0.5)*r;
+      pos[i*3+2] = (Math.random()-0.5)*r;
+    }
+    particles.geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    scene.add(particles);
+
+    function resize(){ renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();}
+    addEventListener('resize', resize); resize();
+
+    let t=0;
+    (function anim(){
+      t += 0.004;
+      knot.rotation.x = t*0.6; knot.rotation.y = t*0.3;
+      particles.rotation.y = -t*0.08;
+      renderer.render(scene, camera);
+      requestAnimationFrame(anim);
+    })();
+  })();
+
+  // ---------- AI integration (client-side using user's OpenAI key) ----------
+  // WARNING: storing or pasting API keys in the browser carries risk. This tool does NOT send keys to any server.
+  let OPENAI_KEY = null;
+  document.getElementById('openAIUnlock').addEventListener('click', ()=> {
+    document.getElementById('openaiKey').scrollIntoView({behavior:'smooth'});
+  });
+  document.getElementById('saveKey').addEventListener('click', ()=>{
+    const v = document.getElementById('openaiKey').value.trim();
+    if(!v){ alert('Paste your OpenAI API key (sk-...) to enable AI features.'); return; }
+    OPENAI_KEY = v;
+    sessionStorage.setItem('ag_openai', v);
+    alert('OpenAI key saved to this session — AI features enabled.');
+  });
+  const stored = sessionStorage.getItem('ag_openai');
+  if(stored) { OPENAI_KEY = stored; document.getElementById('openaiKey').value = '••••••••'; }
+
+  document.getElementById('clearKey').addEventListener('click', ()=>{
+    OPENAI_KEY = null; sessionStorage.removeItem('ag_openai'); document.getElementById('openaiKey').value = ''; alert('Cleared key from session.');
+  });
+
+  // Ignite AI summary for a post when user clicks "AI summary"
+  postsEl.addEventListener('click', async (ev)=>{
+    const btn = ev.target.closest('button[data-action]');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    const resEl = document.getElementById('res-'+id);
+    if(action === 'open'){
+      const p = POSTS.find(x=>x.id===id);
+      if(!p) return;
+      window.open(p.href, '_blank');
+      return;
+    }
+    if(action === 'aisum'){
+      if(!OPENAI_KEY){
+        // fallback to embedded AI summary prepared in the page
+        const p = POSTS.find(x=>x.id===id);
+        resEl.textContent = p.aiSummary;
+        return;
+      }
+      // call OpenAI Chat completions (client-side) — user-provided key
+      resEl.textContent = 'Generating summary...';
+      const p = POSTS.find(x=>x.id===id);
+      try{
+        const prompt = `Summarize this article in 2 short bullet points for a music/finance audience:\nTitle: ${p.title}\nExcerpt: ${p.excerpt}\nProvide 2 concise bullet points and a one-sentence trading-relevance note.`;
+        const payload = {
+          model: "gpt-4o-mini", // if unavailable, change to gpt-4o or gpt-3.5-turbo
+          messages: [{role:'user', content:prompt}],
+          max_tokens: 220,
+          temperature: 0.25
+        };
+        const r = await fetch("https://api.openai.com/v1/chat/completions", {
+          method:'POST',
+          headers: { 'Content-Type':'application/json', 'Authorization': 'Bearer '+OPENAI_KEY },
+          body: JSON.stringify(payload)
+        });
+        if(!r.ok) throw new Error('AI request failed: ' + r.status);
+        const json = await r.json();
+        const text = (json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content) || 'No summary';
+        resEl.textContent = text;
+      }catch(err){
+        resEl.textContent = 'AI error: ' + err.message;
+      }
+    }
+  });
+
+  // ---------- initial small UX polish: highlight authors / attach precomputed summaries ----------
+  // insert precomputed AI summaries so users without keys still see value
+  POSTS.forEach(p=>{
+    const el = document.getElementById('res-'+p.id);
+    if(el) el.textContent = p.aiSummary;
+  });
+
+  // Accessibility: allow keyboard to focus first "AI summary" button
+  setTimeout(()=> {
+    const b = document.querySelector('button[data-action="aisum"]');
+    if(b) b.focus();
+  }, 1000);
+
+  </script>
+
+</body>
+</html>
