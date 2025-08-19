@@ -1,779 +1,489 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>AfroGenstas — Music Meets Finance </title>
-
-<!-- Google Fonts (Figma spec fonts) -->
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
-<!-- Libraries -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<style>
-/* ================= Design system: Figma-style spec ================= */
-:root{
-  /* Palette */
-  --primary:#FF6B00;
-  --secondary:#00FFD1;
-  --accent:#FF2E97;
-  --bg:#07060A;
-  --surface:#0E0E12;
-  --muted:#B3B3B3;
-  --glass: rgba(255,255,255,0.03);
-  --card: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.008));
-  --radius:12px;
-  --maxW:1200px;
-  --shadow: 0 8px 32px rgba(2,6,23,0.6);
-  --transition: 240ms cubic-bezier(.2,.9,.2,1);
-  --ui-size:14px;
-}
-
-/* Base */
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;background:radial-gradient(900px 400px at 8% 8%, rgba(124,92,255,0.035), transparent), var(--bg); color:#fff; -webkit-font-smoothing:antialiased; font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, Arial;}
-a{color:inherit;text-decoration:none}
-button{font-family:inherit}
-
-/* Header */
-header{
-  position:sticky; top:0; z-index:120; display:flex; align-items:center; justify-content:space-between;
-  padding:14px 16px; backdrop-filter: blur(8px); background:linear-gradient(180deg, rgba(3,4,8,0.6), rgba(3,4,8,0.25));
-  border-bottom: 1px solid rgba(255,255,255,0.03);
-}
-.brand{display:flex;gap:12px;align-items:center}
-.logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--accent));display:grid;place-items:center;font-weight:800;font-family:'Orbitron',sans-serif;box-shadow:0 8px 28px rgba(124,92,255,0.08)}
-.header-title{font-weight:700;line-height:1}
-.header-sub{font-size:12px;color:var(--muted)}
-
-/* Nav */
-nav{display:flex;gap:10px;align-items:center}
-nav button{background:transparent;border:none;color:var(--muted);padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:700;transition: all var(--transition); font-size:14px}
-nav button.active{color:#fff;background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));transform:translateY(-2px)}
-
-/* Layout */
-main{max-width:var(--maxW);margin:14px auto;padding:12px;display:grid;grid-template-columns:1fr;gap:12px}
-@media(min-width:1000px){ main{grid-template-columns:720px 1fr} }
-
-.card{background:var(--card); border-radius:var(--radius); padding:14px; border:1px solid rgba(255,255,255,0.03); box-shadow:var(--shadow); transition: transform var(--transition), box-shadow var(--transition);}
-.card:hover{ transform: translateY(-4px); box-shadow: 0 14px 46px rgba(2,6,23,0.72) }
-
-/* Typography */
-h1{font-family:'Orbitron',sans-serif;margin:0;font-size:28px}
-h2{margin:0;font-size:20px;font-weight:700}
-.muted{color:var(--muted);font-size:14px}
-.small{font-size:12px;color:var(--muted)}
-
-/* Ticker & lists */
-.ticker{display:flex;gap:10px;overflow-x:auto;padding:10px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));white-space:nowrap}
-.tick{min-width:150px;padding:10px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(255,255,255,0.02)}
-
-/* Grid cards */
-.grid-cards{display:grid;gap:12px}
-@media(min-width:680px){ .grid-cards{grid-template-columns:repeat(2,1fr)} }
-
-/* Table */
-.table{width:100%;border-collapse:collapse;margin-top:8px}
-.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left}
-.table th{color:var(--primary);font-weight:700}
-
-/* Buttons & inputs */
-.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.input{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#fff;min-width:0}
-.btn{background:linear-gradient(90deg,var(--secondary),var(--primary));border:none;padding:10px 14px;border-radius:12px;color:#021;font-weight:800;cursor:pointer;transition:transform var(--transition), box-shadow var(--transition)}
-.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff}
-.btn:active{transform:translateY(1px)}
-
-/* Posters & gallery */
-.poster{width:120px;height:120px;border-radius:12px;overflow:hidden;flex:0 0 auto;cursor:pointer;box-shadow:0 10px 22px rgba(2,6,23,0.5)}
-.poster img{width:100%;height:100%;object-fit:cover;display:block}
-
-/* Spotlight 3D frame */
-.three-wrap{width:100%;height:260px;border-radius:12px;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));display:flex;align-items:center;justify-content:center}
-.sketch{width:100%;height:100%;border:0}
-
-/* Lightbox */
-.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.82);display:none;place-items:center;z-index:240}
-.lightbox img{max-width:92%;max-height:86%;border-radius:12px}
-
-/* Footer */
-footer{padding:12px;text-align:center;color:var(--muted);font-size:13px;margin-top:8px}
-
-/* Toast */
-.toast{position:fixed;right:18px;bottom:110px;background:linear-gradient(90deg,var(--secondary),var(--primary));padding:10px 14px;border-radius:12px;color:#021;font-weight:800;z-index:320;opacity:0;transform:translateY(10px);transition:all 300ms}
-
-/* Bottom nav (3D icons) */
-.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:330;display:flex;gap:10px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:8px;border-radius:999px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 16px 40px rgba(3,6,20,0.6)}
-.nav-item{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;cursor:pointer;transition:transform var(--transition), box-shadow var(--transition)}
-.nav-item .icon{width:36px;height:36px;transition:transform var(--transition)}
-.nav-item.active{transform:translateY(-6px);box-shadow:0 12px 30px rgba(124,92,255,0.12)}
-.nav-item:active{transform:translateY(-2px)}
-
-/* Install prompt (animated) */
-.install-prompt{position:fixed;right:18px;bottom:92px;z-index:350;display:flex;gap:12px;align-items:center;background:linear-gradient(90deg,var(--secondary),var(--primary));color:#021;padding:12px;border-radius:12px;font-weight:800;transform:translateY(18px) scale(.98);opacity:0;transition:all 420ms cubic-bezier(.2,.9,.2,1)}
-.install-prompt.show{transform:translateY(0) scale(1);opacity:1}
-
-/* Responsive tweaks */
-@media (max-width:520px){
-  .nav-item{width:48px;height:48px}
-  .nav-item .icon{width:28px;height:28px}
-  header{padding:10px}
-  .logo{width:40px;height:40px}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AfroGenstas - Afrobeat Artist Stock Market</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- jsPDF CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a1a, #ff6b6b);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        nav {
+            background: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+        nav button {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .page {
+            display: none;
+            min-height: 100vh;
+        }
+        .active {
+            display: block;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #ffd700;
+        }
+        /* Artist Cards */
+        .artist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .artist-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .artist-card:hover {
+            transform: scale(1.05);
+        }
+        .artist-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .artist-card .price {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        /* Leaderboard */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 10px;
+            border: 1px solid #fff;
+            text-align: left;
+        }
+        /* Futures Section */
+        .futures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .future-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        /* Macro Dashboard */
+        .macro-stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px;
+            text-align: center;
+            width: 200px;
+        }
+        /* Insights */
+        .insights-box {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        /* 3D Canvas */
+        #threejs-canvas {
+            width: 100%;
+            height: 200px;
+            margin: 20px 0;
+        }
+        /* Animations */
+        @keyframes neon {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+        .neon-bg {
+            animation: neon 2s infinite;
+        }
+        /* Ad Placeholder */
+        .ad-placeholder {
+            background: #ffd700;
+            color: #000;
+            text-align: center;
+            padding: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        /* Buy/Sell Buttons */
+        .trade-button {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
 </head>
 <body>
+    <!-- Navigation Bar (Mobile-first bottom nav) -->
+    <nav>
+        <button onclick="showPage('landing')">Home</button>
+        <button onclick="showPage('market')">Market</button>
+        <button onclick="showPage('portfolio')">Portfolio</button>
+        <button onclick="showPage('leaderboard')">Leaderboard</button>
+        <button onclick="showPage('futures')">Futures</button>
+        <button onclick="showPage('macro')">Macro</button>
+        <button onclick="showPage('insights')">Insights</button>
+    </nav>
 
-<!-- 3D background canvas -->
-<canvas id="bgCanvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.45"></canvas>
-
-<header>
-  <div class="brand">
-    <div class="logo" aria-hidden>AG</div>
-    <div>
-      <div class="header-title">AfroGenstas</div>
-      <div class="header-sub">Music • Markets • Gamified</div>
-    </div>
-  </div>
-
-  <nav id="topNav" aria-label="Main navigation">
-    <button data-route="home" class="active">Home</button>
-    <button data-route="market">Market</button>
-    <button data-route="portfolio">Portfolio</button>
-    <button data-route="leaderboard">Leaderboard</button>
-    <button data-route="gallery">Gallery</button>
-    <button data-route="insights">AI</button>
-  </nav>
-</header>
-
-<main>
-  <section id="app" class="card" aria-live="polite" style="z-index:20"></section>
-
-  <aside style="z-index:20">
-    <div class="card">
-      <h3>Live Ticker</h3>
-      <div id="ticker" class="ticker muted" aria-live="polite"></div>
+    <!-- Landing Page -->
+    <div id="landing" class="page active">
+        <div class="container">
+            <h1>Welcome to AfroGenstas</h1>
+            <div id="threejs-canvas" class="neon-bg"></div>
+            <p style="text-align: center;">Invest in Afrobeat artists like stocks, track your portfolio, and compete globally!</p>
+            <button onclick="showPage('market')" style="display: block; margin: 20px auto; padding: 10px 20px; background: #ffd700; color: #000; border: none; cursor: pointer;">Start Trading</button>
+            <div class="ad-placeholder">Ad Space: Sponsored by Afrobeat Hits</div>
+            <!-- PWA Install Prompt Simulation -->
+            <div id="install-prompt" style="text-align: center; margin: 20px; animation: fadeIn 2s;">
+                <button onclick="simulateInstall()">Add to Home Screen</button>
+            </div>
+        </div>
     </div>
 
-    <div class="card" style="margin-top:12px">
-      <h3>Profile</h3>
-      <div style="display:flex;gap:12px;align-items:center">
-        <div style="width:62px;height:62px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--accent));display:grid;place-items:center;font-weight:800;font-family:'Orbitron',sans-serif">U</div>
-        <div>
-          <div id="userName" style="font-weight:700">Guest</div>
-          <div id="userMeta" class="small muted">Lv 1 • XP 0</div>
+    <!-- Artist Stock Market Page -->
+    <div id="market" class="page">
+        <div class="container">
+            <h2>Artist Stock Market</h2>
+            <div class="artist-grid">
+                <div class="artist-card">
+                    <img src="https://via.placeholder.com/200?text=Burna+Boy" alt="Burna Boy">
+                    <h3>Burna Boy ($BURNA)</h3>
+                    <p class="price">$10.5</p>
+                    <p>Streams: 1.2B | Change: +2.3%</p>
+                    <canvas id="burna-chart" class="chart-container"></canvas>
+                    <button class="trade-button" onclick="buyArtist('Burna Boy', 10.5)">Buy</button>
+                    <button class="trade-button" onclick="sellArtist('Burna Boy', 10.5)">Sell</button>
+                </div>
+                <div class="artist-card">
+                    <img src="https://via.placeholder.com/200?text=Asake" alt="Asake">
+                    <h3>Asake ($ASAKE)</h3>
+                    <p class="price">$8.2</p>
+                    <p>Streams: 900M | Change: -1.1%</p>
+                    <canvas id="asake-chart" class="chart-container"></canvas>
+                    <button class="trade-button" onclick="buyArtist('Asake', 8.2)">Buy</button>
+                    <button class="trade-button" onclick="sellArtist('Asake', 8.2)">Sell</button>
+                </div>
+                <!-- Add more artists as needed -->
+            </div>
         </div>
-      </div>
-      <div style="margin-top:10px" class="controls">
-        <button id="btnExport" class="btn ghost">Export PDF</button>
-      </div>
     </div>
 
-    <div class="card" style="margin-top:12px">
-      <h3>Spotlight 3D</h3>
-      <div id="spot3d" class="three-wrap">
-        <iframe id="spotFrame" class="sketch" src="" title="3D artist spotlight" allow="autoplay; fullscreen; vr"></iframe>
-      </div>
-      <div class="muted small" style="margin-top:8px">Top artist visual (updates with market leader)</div>
+    <!-- Portfolio Page -->
+    <div id="portfolio" class="page">
+        <div class="container">
+            <h2>Your Portfolio</h2>
+            <p>Total Value: $<span id="portfolio-value">0</span> | P/L: $<span id="pl">0</span> | Return: <span id="return">0%</span></p>
+            <p>Volatility: <span id="volatility">Low</span> | Sharpe Ratio: <span id="sharpe">1.2</span></p>
+            <canvas id="portfolio-chart" class="chart-container"></canvas>
+            <div id="holdings-table">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr><th>Artist</th><th>Price</th><th>Change</th></tr>
+                    </thead>
+                    <tbody id="holdings-body"></tbody>
+                </table>
+            </div>
+            <div class="ad-placeholder">Ad Space: Premium Insights Available</div>
+        </div>
     </div>
 
-    <div class="card" style="margin-top:12px">
-      <h3>Sponsored</h3>
-      <div class="muted small">Ad slot placeholder — integrate AdSense / ads here</div>
+    <!-- Leaderboards Page -->
+    <div id="leaderboard" class="page">
+        <div class="container">
+            <h2>Global Leaderboard</h2>
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>User</th>
+                        <th>Portfolio Value</th>
+                        <th>Diversification Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>AfroInvestor</td>
+                        <td>$25.3</td>
+                        <td>85%</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>BeatTrader</td>
+                        <td>$24.8</td>
+                        <td>78%</td>
+                    </tr>
+                    <!-- Add more rows -->
+                </tbody>
+            </table>
+        </div>
     </div>
-  </aside>
-</main>
 
-<footer>© 2025 AfroGenstas — Build, play & invest in Afrobeat culture</footer>
-
-<!-- Lightbox -->
-<div id="lightbox" class="lightbox" aria-hidden="true" role="dialog" style="display:none">
-  <img id="lightboxImg" alt="Artwork" />
-</div>
-
-<!-- Install prompt -->
-<div id="installPrompt" class="install-prompt" aria-hidden="true" style="display:none">
-  <div style="display:flex;flex-direction:column">
-    <div style="font-weight:900">Install AfroGenstas</div>
-    <div style="font-size:13px;color:#062">Add to home screen for quick access</div>
-  </div>
-  <div style="margin-left:12px;display:flex;flex-direction:column;gap:6px">
-    <button id="installAccept" class="btn">Install</button>
-    <button id="installDismiss" class="btn ghost">Later</button>
-  </div>
-</div>
-
-<!-- Bottom nav -->
-<div class="bottom-nav" role="navigation" aria-label="Bottom navigation">
-  <div class="nav-item active" data-route="home" title="Home" aria-label="Home">
-    <svg class="icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="10" rx="2" fill="url(#g1)" opacity="0.95"></rect></svg>
-  </div>
-  <div class="nav-item" data-route="market" title="Market" aria-label="Market">
-    <svg class="icon" viewBox="0 0 24 24" fill="none"><rect x="4" y="6" width="16" height="12" rx="3" fill="url(#g2)"></rect></svg>
-  </div>
-  <div class="nav-item" data-route="portfolio" title="Portfolio" aria-label="Portfolio">
-    <svg class="icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="3" fill="rgba(255,255,255,0.02)"></rect></svg>
-  </div>
-  <div class="nav-item" data-route="leaderboard" title="Leaderboard" aria-label="Leaderboard">
-    <svg class="icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="3" fill="rgba(255,255,255,0.02)"></rect></svg>
-  </div>
-  <div class="nav-item" data-route="gallery" title="Gallery" aria-label="Gallery">
-    <svg class="icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="3" fill="rgba(255,255,255,0.02)"></rect></svg>
-  </div>
-</div>
-
-<script>
-/* ================= AfroGenstas Polished Single-file App =================
-   - Keep APP_CONFIG.SERVER_SUMMARIZE_URL blank unless you have a serverless endpoint
-   - No secrets in client. Use server-side to call Gemini.
-   - Replace poster/cover/sketch URLs with your production assets.
-*/
-
-(() => {
-  'use strict';
-
-  /* ---------------- CONFIG ---------------- */
-  const APP_CONFIG = {
-    SERVER_SUMMARIZE_URL: '', // optional serverless summarizer endpoint
-    CLIENT_KEY: 'public-demo-key-123',
-    VERSION: '2.0.0-polished'
-  };
-
-  /* ---------------- DATA (demo) ---------------- */
-  const ARTISTS = [
-    { ticker:'$BURNA', name:'Burna Boy', color:'#FF6B00', poster:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop', cover:'https://images.unsplash.com/photo-1544148106-0c3b8403d5f4?q=80&w=1200&auto=format&fit=crop', sketch:'https://sketchfab.com/models/8208f257d2d3457183e866eb990e6511/embed' },
-    { ticker:'$REMA',  name:'Rema',      color:'#00FFD1', poster:'https://images.unsplash.com/photo-1520975687175-9e0c8d2b5d04?q=80&w=1200&auto=format&fit=crop', cover:'https://images.unsplash.com/photo-1505685296765-3a2736de412f?q=80&w=1200&auto=format&fit=crop', sketch:'https://sketchfab.com/models/4f2a3b8f3f2b4e0e9728f2bd1/embed' },
-    { ticker:'$ASAKE', name:'Asake',     color:'#FF2E97', poster:'https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=1200&auto=format&fit=crop', cover:'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1200&auto=format&fit=crop', sketch:'https://sketchfab.com/models/9f6b0e3f3f374b4b8b4f6a4f/embed' }
-  ];
-
-  /* ---------------- STATE ---------------- */
-  const LS_KEY = 'afrogenstas_prod_v3';
-  function defaultProfile(){ return { user:'Guest', xp:0, level:1, streak:0, quests:[], achievements:{}, portfolio:{ cash:15000, holdings:{}, history:[] } }; }
-  let PROFILE = loadProfile();
-  let currentRoute = 'home';
-  const priceState = {};
-
-  /* ---------------- Helpers ---------------- */
-  const $ = s => document.querySelector(s);
-  const $$ = s => Array.from(document.querySelectorAll(s));
-  function saveProfile(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(PROFILE)); }catch(e){ console.warn('save fail', e); } }
-  function loadProfile(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || defaultProfile(); }catch(e){ return defaultProfile(); } }
-  function nowISO(){ return new Date().toISOString(); }
-  function toast(msg, t=2200){ const el = document.createElement('div'); el.className='toast'; el.textContent=msg; document.body.appendChild(el); requestAnimationFrame(()=>{el.style.opacity='1';el.style.transform='translateY(0)';}); setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(10px)'; setTimeout(()=>el.remove(),350); }, t); }
-  function hexToRgba(hex, a=0.12){ const c = hex.replace('#',''); const r = parseInt(c.substring(0,2),16), g=parseInt(c.substring(2,4),16), b=parseInt(c.substring(4,6),16); return `rgba(${r},${g},${b},${a})`; }
-  function fmt(n){ return '$' + Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
-
-  /* ---------------- Price Simulation ---------------- */
-  function initPrices(){
-    ARTISTS.forEach(a => {
-      const base = 50 + Math.random()*180;
-      priceState[a.ticker] = { history: Array.from({length:100}, (_,i)=>Math.round((base + Math.sin(i/6)*6 + Math.random()*7)*100)/100), last: Math.round(base*100)/100, popularity: 30 + Math.random()*70 };
-    });
-    scheduleTick();
-  }
-
-  let tickHandle = null;
-  function scheduleTick(){
-    if(tickHandle) clearTimeout(tickHandle);
-    tickPrices();
-    tickHandle = setTimeout(scheduleTick, 2600 + Math.random()*1600);
-  }
-
-  function tickPrices(){
-    ARTISTS.forEach(a => {
-      const s = priceState[a.ticker];
-      const impulse = (Math.random() < 0.05) ? ( (Math.random()>0.5?1:-1) * (2 + Math.random()*6) ) : 0;
-      s.popularity = Math.max(0, Math.min(100, s.popularity + (Math.random()-0.5)*2 + (impulse>0?1:-0.5)));
-      const noise = (Math.random()-0.5) * 0.02 + (s.popularity - 50) / 5000;
-      s.last = Math.max(0.5, Math.round((s.last * (1 + noise) + impulse) * 100) / 100);
-      s.history.push(s.last);
-      if(s.history.length>600) s.history.shift();
-    });
-    renderTicker();
-    if(currentRoute === 'market') renderMarketBody();
-    if(currentRoute === 'portfolio') updateHoldingsUI();
-    updateSpotlightFrame();
-  }
-
-  /* ---------------- 3D Background (optimized) ---------------- */
-  function init3DBackground(){
-    try{
-      const canvas = document.getElementById('bgCanvas');
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
-      renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 1000);
-      camera.position.set(0,0,70);
-
-      const knotGeo = new THREE.TorusKnotGeometry(12, 1.4, 180, 24);
-      const knotMat = new THREE.MeshStandardMaterial({ color: 0x7c5cff, roughness:0.5, metalness:0.12, emissive:0x2b1b6b, emissiveIntensity:0.12 });
-      const knot = new THREE.Mesh(knotGeo, knotMat);
-      knot.rotation.x = 0.6; scene.add(knot);
-
-      const pCount = 500;
-      const positions = new Float32Array(pCount*3);
-      for(let i=0;i<pCount;i++){ positions[i*3+0]=(Math.random()-0.5)*400; positions[i*3+1]=(Math.random()-0.5)*120; positions[i*3+2]=(Math.random()-0.5)*400; }
-      const particleGeo = new THREE.BufferGeometry();
-      particleGeo.setAttribute('position', new THREE.BufferAttribute(positions,3));
-      const particleMat = new THREE.PointsMaterial({ color:0x00e5ff, size:0.5, transparent:true, opacity:0.12 });
-      const particles = new THREE.Points(particleGeo, particleMat);
-      scene.add(particles);
-
-      const amb = new THREE.AmbientLight(0xffffff, 0.12); scene.add(amb);
-      const dir = new THREE.DirectionalLight(0xffffff, 0.18); dir.position.set(50,50,100); scene.add(dir);
-
-      function resize(){ renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); }
-      resize(); window.addEventListener('resize', () => { resize(); });
-
-      let t=0;
-      (function loop(){
-        t += 0.006;
-        const beat = (Math.sin(t*3.5) + 1) * 0.5; // gentle beat curve
-        knot.rotation.y += 0.002 + 0.001 * beat;
-        knot.rotation.x += 0.0008;
-        knot.scale.setScalar(1 + 0.02 * beat);
-        particles.rotation.y = -t*0.02;
-        knot.material.emissiveIntensity = 0.08 + marketMoodNormalized() * 0.4;
-        renderer.render(scene, camera);
-        requestAnimationFrame(loop);
-      })();
-
-      return true;
-    }catch(e){ console.warn('3D failed', e); return false; }
-  }
-
-  function marketMoodNormalized(){
-    let score=0; ARTISTS.forEach(a => { const s=priceState[a.ticker]; const h = s.history; const prev = h[h.length-2] || h[0]; score += Math.sign(s.last - prev) * Math.min(1, Math.abs((s.last - prev) / Math.max(1, prev))); });
-    return Math.max(0, Math.min(1, (score / ARTISTS.length + 1)/2));
-  }
-
-  /* ---------------- ROUTING ---------------- */
-  const ROUTES = { home: renderHome, market: renderMarket, portfolio: renderPortfolio, leaderboard: renderLeaderboard, gallery: renderGallery, insights: renderInsights };
-  function initNav(){
-    $$('#topNav button').forEach(b => b.addEventListener('click', () => { $$('#topNav button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); navigate(b.dataset.route); }));
-    $$('.bottom-nav .nav-item').forEach(n => n.addEventListener('click', () => { $$('.bottom-nav .nav-item').forEach(x=>x.classList.remove('active')); n.classList.add('active'); navigate(n.dataset.route); }));
-    window.addEventListener('popstate', () => { const r = location.hash.replace('#','') || 'home'; navigate(r, true); });
-  }
-  function navigate(route, fromPop=false){
-    currentRoute = route || 'home';
-    $$('#topNav button').forEach(b => b.classList.toggle('active', b.dataset.route === route));
-    $$('.bottom-nav .nav-item').forEach(b => b.classList.toggle('active', b.dataset.route === route));
-    if(!fromPop) history.pushState({route}, '', '#'+route);
-    (ROUTES[route] || ROUTES.home)();
-  }
-
-  /* ---------------- RENDERERS ---------------- */
-
-  // Home
-  function renderHome(){
-    const app = $('#app');
-    app.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <h1>AfroGenstas</h1>
-          <div class="muted">Invest in Afrobeat artists. Trade song futures. Earn XP & leaderboard glory.</div>
+    <!-- Song & Beat Futures Page -->
+    <div id="futures" class="page">
+        <div class="container">
+            <h2>Song & Beat Futures</h2>
+            <div class="futures-grid">
+                <div class="future-card">
+                    <h3>Upcoming Track: "AfroFire"</h3>
+                    <p>Projected ROI: 15% | Confidence: 80%</p>
+                    <p>Countdown: 7 days</p>
+                    <button class="trade-button">Invest</button>
+                </div>
+                <div class="future-card">
+                    <h3>Beat: "Naija Vibes"</h3>
+                    <p>Projected ROI: 20% | Confidence: 75%</p>
+                    <p>Countdown: 14 days</p>
+                    <button class="trade-button">Invest</button>
+                </div>
+            </div>
         </div>
-        <div style="display:flex;gap:8px">
-          <button id="openMarket" class="btn">Open Market</button>
-          <button id="openPortfolio" class="btn ghost">Portfolio</button>
+    </div>
+
+    <!-- Afrobeat Macro Dashboard Page -->
+    <div id="macro" class="page">
+        <div class="container">
+            <h2>Afrobeat Macro Dashboard</h2>
+            <div class="macro-stats">
+                <div class="stat-card">
+                    <h3>Global Streams</h3>
+                    <p>5.2B</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Market Share</h3>
+                    <p>Spotify: 40% | YouTube: 35%</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Top Region</h3>
+                    <p>Nigeria: 60%</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Emerging Genre</h3>
+                    <p>Afro-Fusion: +25%</p>
+                </div>
+            </div>
+            <canvas id="macro-chart" class="chart-container"></canvas>
         </div>
-      </div>
+    </div>
 
-      <div style="margin-top:12px" class="card">
-        <h2>Top Artists</h2>
-        <div id="topArtists" class="grid-cards" style="margin-top:10px"></div>
-      </div>
-
-      <div style="margin-top:12px" class="card">
-        <h2>3D Spotlight</h2>
-        <div class="three-wrap"><iframe id="homeSpot" class="sketch" src="" allow="autoplay; fullscreen"></iframe></div>
-      </div>
-    `;
-    $('#openMarket').addEventListener('click', ()=> navigate('market'));
-    $('#openPortfolio').addEventListener('click', ()=> navigate('portfolio'));
-
-    const grid = $('#topArtists'); grid.innerHTML = '';
-    ARTISTS.forEach(a => {
-      const s = priceState[a.ticker];
-      const card = document.createElement('div'); card.className='card';
-      card.innerHTML = `<div style="display:flex;gap:12px">
-        <div style="width:84px;height:84px;border-radius:12px;overflow:hidden"><img src="${a.poster}" style="width:100%;height:100%;object-fit:cover" alt="${a.name}"></div>
-        <div style="flex:1">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><strong>${a.name}</strong><div class="small muted">${a.ticker}</div></div>
-            <div style="text-align:right"><div style="font-weight:900">${s.last.toFixed(2)}</div><div class="small muted">Pop ${s.popularity.toFixed(0)}</div></div>
-          </div>
-          <div style="margin-top:8px" class="controls"><button class="btn" data-buy="${a.ticker}">Buy</button><button class="btn ghost" data-view="${a.ticker}">View</button></div>
+    <!-- AI-Powered Insights Page -->
+    <div id="insights" class="page">
+        <div class="container">
+            <h2>AI-Powered Insights</h2>
+            <div class="insights-box">
+                <h3>Gemini AI Analysis</h3>
+                <p><strong>Portfolio Recommendation:</strong> Diversify into rising stars like $REMA for better returns.</p>
+                <p><strong>Market Trend:</strong> Afrobeat streams up 12% this week.</p>
+                <p><strong>Buy Alert:</strong> $ASAKE undervalued based on recent charts.</p>
+                <button onclick="generateReport()" class="trade-button" style="padding: 10px 20px;">Generate & Download Report</button>
+            </div>
         </div>
-      </div>`;
-      grid.appendChild(card);
-      card.querySelector('[data-buy]').addEventListener('click', () => openTradeModal('BUY', a.ticker));
-      card.querySelector('[data-view]').addEventListener('click', () => openArtistPanel(a.ticker));
-    });
+    </div>
 
-    $('#homeSpot').src = ARTISTS[0].sketch || '';
-  }
+    <script>
+        // Page Navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
 
-  // Market
-  let marketChart = null;
-  function renderMarket(){
-    const app = $('#app');
-    app.innerHTML = `
-      <h2>Market</h2>
-      <div class="muted">Real-time simulated artist market</div>
+        // Portfolio Data
+        let portfolio = [];
+        let balance = 100; // Starting virtual currency
+        let portfolioValue = 0;
+        let pl = 0;
+        let returnPct = 0;
 
-      <div style="margin-top:12px" class="card">
-        <h3>Artists</h3>
-        <table class="table"><thead><tr><th>Artist</th><th>Ticker</th><th>Price</th><th>Popularity</th><th>Action</th></tr></thead><tbody id="marketBody"></tbody></table>
-      </div>
+        function buyArtist(name, price) {
+            if (balance < price) {
+                alert('Insufficient balance!');
+                return;
+            }
+            const existing = portfolio.find(a => a.name === name);
+            if (existing) {
+                existing.shares += 1;
+                existing.cost += price;
+            } else {
+                portfolio.push({ name, price, shares: 1, cost: price });
+            }
+            balance -= price;
+            updatePortfolio();
+        }
 
-      <div style="margin-top:12px" class="card">
-        <h3>Price History</h3>
-        <canvas id="marketChart" style="height:200px"></canvas>
-        <div style="margin-top:8px" class="controls">
-          <select id="artistSelect" class="input">${ARTISTS.map(a=>`<option value="${a.ticker}">${a.ticker} — ${a.name}</option>`).join('')}</select>
-          <button id="viewSeries" class="btn ghost">View Chart</button>
-        </div>
-      </div>
-    `;
-    renderMarketBody();
-    $('#viewSeries').addEventListener('click', ()=> drawMarketChart($('#artistSelect').value));
-    drawMarketChart(ARTISTS[0].ticker);
-  }
+        function sellArtist(name, price) {
+            const index = portfolio.findIndex(a => a.name === name);
+            if (index === -1 || portfolio[index].shares === 0) {
+                alert('No shares to sell!');
+                return;
+            }
+            portfolio[index].shares -= 1;
+            balance += price;
+            if (portfolio[index].shares === 0) {
+                portfolio.splice(index, 1);
+            }
+            updatePortfolio();
+        }
 
-  function renderMarketBody(){
-    const tbody = $('#marketBody'); if(!tbody) return; tbody.innerHTML='';
-    ARTISTS.forEach(a => {
-      const s = priceState[a.ticker];
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${a.name}</td><td>${a.ticker}</td><td style="font-weight:800">${s.last.toFixed(2)}</td><td>${s.popularity.toFixed(0)}</td><td><div class="controls"><button class="btn" data-buy="${a.ticker}">Buy</button><button class="btn ghost" data-view="${a.ticker}">View</button></div></td>`;
-      tbody.appendChild(tr);
-    });
-    tbody.querySelectorAll('[data-buy]').forEach(b => b.addEventListener('click', e => openTradeModal('BUY', e.currentTarget.dataset.buy)));
-    tbody.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', e => openArtistPanel(e.currentTarget.dataset.view)));
-  }
+        function updatePortfolio() {
+            portfolioValue = portfolio.reduce((sum, a) => sum + a.price * a.shares, 0);
+            pl = portfolioValue - portfolio.reduce((sum, a) => sum + a.cost, 0);
+            returnPct = portfolioValue > 0 ? (pl / portfolioValue) * 100 : 0;
 
-  function drawMarketChart(ticker){
-    const ctx = document.getElementById('marketChart').getContext('2d');
-    const s = priceState[ticker]; const series = s.history.slice(-200);
-    if(marketChart) marketChart.destroy();
-    marketChart = new Chart(ctx, {
-      type:'line',
-      data:{ labels: series.map((_,i)=>i), datasets:[{ data: series, borderColor: ARTISTS.find(a=>a.ticker===ticker).color, backgroundColor: hexToRgba(ARTISTS.find(a=>a.ticker===ticker).color, .12), fill:true, tension:0.28 }]},
-      options:{plugins:{legend:{display:false}}, scales:{x:{display:false}}}
-    });
-  }
+            document.getElementById('portfolio-value').textContent = portfolioValue.toFixed(2);
+            document.getElementById('pl').textContent = pl.toFixed(2);
+            document.getElementById('return').textContent = returnPct.toFixed(2) + '%';
 
-  // Artist panel
-  function openArtistPanel(ticker){
-    const artist = ARTISTS.find(a => a.ticker === ticker); if(!artist) return toast('Artist not found');
-    const s = priceState[ticker];
-    const app = $('#app');
-    app.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><h2>${artist.name} <small class="muted">${artist.ticker}</small></h2><div class="small muted">Last ${s.last.toFixed(2)} • Pop ${s.popularity.toFixed(0)}</div></div>
-        <div><button id="backToMarket" class="btn ghost">Back</button></div>
-      </div>
-      <div style="margin-top:12px" class="card">
-        <div style="display:flex;gap:12px;align-items:flex-start">
-          <div style="flex:1"><canvas id="artistChart" style="height:180px"></canvas></div>
-          <div style="width:260px">
-            <div style="height:160px;border-radius:12px;overflow:hidden"><img src="${artist.cover}" style="width:100%;height:100%;object-fit:cover" alt="${artist.name}"></div>
-            <div style="margin-top:8px" class="controls"><button id="tradeArtist" class="btn">Trade</button><button id="summBtn" class="btn ghost">Summarize</button></div>
-            <div id="artistInfo" class="muted small" style="margin-top:8px"></div>
-          </div>
-        </div>
-      </div>
-    `;
-    $('#backToMarket').addEventListener('click', ()=> renderMarket());
-    $('#tradeArtist').addEventListener('click', ()=> openTradeModal('BUY', ticker));
-    $('#summBtn').addEventListener('click', async () => {
-      const info = $('#artistInfo'); info.textContent='Generating…';
-      try{ const out = await summarize(`${artist.name} update: price ${priceState[ticker].last}, popularity ${priceState[ticker].popularity}`); info.innerHTML = out.replace(/\n/g,'<br/>'); }catch(e){ info.textContent = 'AI error: ' + e.message; }
-    });
+            const holdingsBody = document.getElementById('holdings-body');
+            holdingsBody.innerHTML = portfolio.map(a => `
+                <tr>
+                    <td>${a.name} (${a.shares} shares)</td>
+                    <td>$${a.price}</td>
+                    <td>+1.2%</td>
+                </tr>
+            `).join('');
 
-    const ctx = document.getElementById('artistChart').getContext('2d');
-    const series = s.history.slice(-200);
-    new Chart(ctx, { type:'line', data:{ labels: series.map((_,i)=>i), datasets:[{ data: series, borderColor: artist.color, backgroundColor: hexToRgba(artist.color, .12), fill:true, tension:0.28 }]}, options:{plugins:{legend:{display:false}}, scales:{x:{display:false}}} });
-  }
+            // Update Portfolio Chart
+            const ctxPortfolio = document.getElementById('portfolio-chart').getContext('2d');
+            new Chart(ctxPortfolio, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{ label: 'Portfolio Value', data: [90, 95, 100, portfolioValue], borderColor: '#ffd700' }]
+                },
+                options: { scales: { y: { beginAtZero: false } } }
+            });
+        }
 
-  // Trade modal
-  function openTradeModal(side='BUY', ticker=null){
-    const app = $('#app');
-    const modal = document.createElement('div'); modal.className='card'; modal.style.marginBottom='12px';
-    modal.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><h3>${side} ${ticker||''}</h3><div class="small muted">Quick trade</div></div>
-        <div><button class="btn ghost close">Close</button></div>
-      </div>
-      <div style="margin-top:12px" class="controls">
-        <select id="trTicker" class="input">${ARTISTS.map(a=>`<option value="${a.ticker}">${a.ticker} — ${a.name}</option>`).join('')}</select>
-        <input id="trQty" type="number" min="1" value="1" class="input" style="width:110px"/>
-        <button id="trConfirm" class="btn">${side}</button>
-      </div>
-      <div id="trPreview" class="muted small" style="margin-top:8px"></div>
-    `;
-    app.prepend(modal);
-    if(ticker) modal.querySelector('#trTicker').value = ticker;
-    modal.querySelector('.close').addEventListener('click', ()=> modal.remove());
-    const preview = modal.querySelector('#trPreview');
-    const update = ()=>{ const t=modal.querySelector('#trTicker').value; const q=Math.max(1,Math.floor(Number(modal.querySelector('#trQty').value)||1)); const price = priceState[t].last; preview.innerHTML = `Price: <strong>${price.toFixed(2)}</strong> • Total: <strong>${(price*q).toFixed(2)}</strong>`; };
-    modal.querySelector('#trTicker').addEventListener('change', update);
-    modal.querySelector('#trQty').addEventListener('input', update);
-    update();
-    modal.querySelector('#trConfirm').addEventListener('click', ()=> { const t = modal.querySelector('#trTicker').value; const q = Math.max(1,Math.floor(Number(modal.querySelector('#trQty').value)||1)); executeTrade(side,t,q); modal.remove(); });
-  }
+        // Sample Charts for Artists
+        function initCharts() {
+            const ctxBurna = document.getElementById('burna-chart').getContext('2d');
+            new Chart(ctxBurna, {
+                type: 'line',
+                data: {
+                    labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'],
+                    datasets: [{ label: '$BURNA', data: [9.5, 10, 10.2, 10.4, 10.5], borderColor: '#00ff00' }]
+                },
+                options: { scales: { y: { beginAtZero: false } } }
+            });
 
-  // Execute trade
-  function executeTrade(side,ticker,qty){
-    const price = priceState[ticker].last;
-    if(side === 'BUY'){
-      const cost = price * qty;
-      if(cost > PROFILE.portfolio.cash){ toast('Insufficient cash'); return; }
-      const hold = PROFILE.portfolio.holdings[ticker] || { qty:0, avg:0 };
-      const newQty = hold.qty + qty;
-      const newAvg = ((hold.avg*hold.qty) + price*qty) / (newQty || 1);
-      PROFILE.portfolio.holdings[ticker] = { qty:newQty, avg:newAvg };
-      PROFILE.portfolio.cash -= cost;
-      PROFILE.portfolio.history.push({ t: nowISO(), action:'BUY', ticker, qty, price });
-      PROFILE.xp = (PROFILE.xp||0) + Math.max(6, Math.round(qty*0.6));
-      toast(`Bought ${qty} ${ticker}`);
-    } else {
-      const hold = PROFILE.portfolio.holdings[ticker];
-      if(!hold || hold.qty <= 0){ toast('Nothing to sell'); return; }
-      const sellQty = Math.min(qty, hold.qty);
-      hold.qty -= sellQty; if(hold.qty === 0) delete PROFILE.portfolio.holdings[ticker];
-      PROFILE.portfolio.cash += sellQty * price;
-      PROFILE.portfolio.history.push({ t: nowISO(), action:'SELL', ticker, qty: sellQty, price });
-      PROFILE.xp = (PROFILE.xp||0) + Math.max(4, Math.round(qty*0.3));
-      toast(`Sold ${sellQty} ${ticker}`);
-    }
-    levelCheck(); saveProfile(); updateHoldingsUI(); drawPortfolioChart(); updateProfileUI();
-  }
+            const ctxAsake = document.getElementById('asake-chart').getContext('2d');
+            new Chart(ctxAsake, {
+                type: 'line',
+                data: {
+                    labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'],
+                    datasets: [{ label: '$ASAKE', data: [8.5, 8.3, 8.1, 8.0, 8.2], borderColor: '#ff0000' }]
+                },
+                options: { scales: { y: { beginAtZero: false } } }
+            });
 
-  // Level & XP
-  function levelCheck(){
-    const target = 100 + (PROFILE.level - 1) * 75;
-    while((PROFILE.xp || 0) >= target){
-      PROFILE.xp -= target; PROFILE.level += 1; PROFILE.achievements['level_'+PROFILE.level] = { at: nowISO() }; toast(`Level up! Lv ${PROFILE.level}`);
-    }
-  }
+            // Macro Chart
+            const ctxMacro = document.getElementById('macro-chart').getContext('2d');
+            new Chart(ctxMacro, {
+                type: 'pie',
+                data: {
+                    labels: ['Spotify', 'YouTube', 'Apple Music'],
+                    datasets: [{ data: [40, 35, 25], backgroundColor: ['#1db954', '#ff0000', '#fa57c1'] }]
+                }
+            });
+        }
 
-  // Portfolio
-  let portfolioChart = null;
-  function renderPortfolio(){
-    const app = $('#app');
-    app.innerHTML = `
-      <h2>Your Portfolio</h2>
-      <div class="muted">Holdings, cash, and performance</div>
+        // 3D Background with Three.js
+        function initThreeJS() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 200, 0.1, 1000); // Height fixed to 200px
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, 200);
+            document.getElementById('threejs-canvas').appendChild(renderer.domElement);
 
-      <div style="margin-top:12px" class="card">
-        <h3>Holdings</h3>
-        <table class="table"><thead><tr><th>Artist</th><th>Ticker</th><th>Qty</th><th>Avg</th><th>Last</th><th>Value</th><th>P/L</th><th>Action</th></tr></thead><tbody id="holdingsTbl"></tbody></table>
-        <div style="margin-top:10px" class="muted">Cash: <strong id="cashVal"></strong> • Total: <strong id="totalVal"></strong></div>
-      </div>
+            const geometry = new THREE.SphereGeometry(1, 32, 32);
+            const material = new THREE.MeshBasicMaterial({ color: 0xffd700, wireframe: true });
+            const sphere = new THREE.Mesh(geometry, material);
+            scene.add(sphere);
 
-      <div style="margin-top:12px" class="card">
-        <h3>Performance</h3>
-        <canvas id="portfolioChart" style="height:200px"></canvas>
-        <div id="portfolioMetrics" class="muted" style="margin-top:8px"></div>
-      </div>
-    `;
-    updateHoldingsUI(); drawPortfolioChart();
-  }
+            camera.position.z = 5;
 
-  function updateHoldingsUI(){
-    const tbody = $('#holdingsTbl'); if(!tbody) return; tbody.innerHTML='';
-    let equity = 0;
-    for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)){
-      const art = ARTISTS.find(a=>a.ticker===t) || { name: t };
-      const last = priceState[t].last; const value = last * h.qty; equity += value;
-      const pl = (last - h.avg) * h.qty;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${art.name}</td><td>${t}</td><td>${h.qty}</td><td>${h.avg.toFixed(2)}</td><td>${last.toFixed(2)}</td><td>${value.toFixed(2)}</td><td style="color:${pl>=0? '#2dd4bf':'#ff6b6b'}">${pl>=0?'+':''}${pl.toFixed(2)}</td><td><button class="btn ghost" data-sell="${t}">Sell</button></td>`;
-      tbody.appendChild(tr);
-    }
-    tbody.querySelectorAll('[data-sell]').forEach(b => b.addEventListener('click', e => openTradeModal('SELL', e.currentTarget.dataset.sell)));
-    const total = equity + PROFILE.portfolio.cash;
-    $('#cashVal').textContent = fmt(PROFILE.portfolio.cash);
-    $('#totalVal').textContent = fmt(total);
-    updateSnapshot(); saveProfile();
-  }
+            function animate() {
+                requestAnimationFrame(animate);
+                sphere.rotation.x += 0.01;
+                sphere.rotation.y += 0.01;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
 
-  function getPortfolioSeries(){
-    const len = 64; const series = [];
-    for(let i=0;i<len;i++){
-      let tot = 0;
-      for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)){
-        const hist = priceState[t].history; const idx = Math.max(0, hist.length - len + i);
-        tot += (hist[idx] || hist[0] || 100) * h.qty;
-      }
-      series.push(tot + PROFILE.portfolio.cash);
-    }
-    return series;
-  }
+        // Simulate PWA Install
+        function simulateInstall() {
+            alert('App added to home screen! (Simulation)');
+        }
 
-  function drawPortfolioChart(){
-    const canvas = document.getElementById('portfolioChart'); if(!canvas) return;
-    const series = getPortfolioSeries();
-    if(portfolioChart) portfolioChart.destroy();
-    portfolioChart = new Chart(canvas.getContext('2d'), { type:'line', data:{ labels: series.map((_,i)=>i), datasets:[{ data: series, borderColor:'#6c5cff', backgroundColor: hexToRgba('#6c5cff', .12), fill:true }]}, options:{plugins:{legend:{display:false}}, scales:{x:{display:false}}} });
-    const metrics = computeMetrics(series);
-    $('#portfolioMetrics').textContent = `Ann Return: ${(metrics.annual_return*100).toFixed(2)}% • Vol: ${(metrics.volatility_ann*100).toFixed(2)}% • Sharpe: ${metrics.sharpe.toFixed(2)}`;
-  }
+        // Generate PDF Report with jsPDF
+        function generateReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text('AfroGenstas Weekly Report', 10, 10);
+            doc.text('Portfolio Value: $' + portfolioValue.toFixed(2), 10, 20);
+            doc.text('AI Insight: Diversify for better returns.', 10, 30);
+            doc.save('afrogenstas-report.pdf');
+            alert('Report generated and downloaded! (Powered by Gemini AI simulation)');
+        }
 
-  // Leaderboard
-  let LEADERBOARD = [ { user:'Keita', value:32200 }, { user:'Aisha', value:27140 }, { user:'Tunde', value:19870 }, { user:'You', value:0 } ];
-  function renderLeaderboard(){
-    const app = $('#app'); app.innerHTML = `<h2>Leaderboard</h2><div class="muted">Community rankings</div><div style="margin-top:12px" id="lbWrap"></div>`;
-    const wrap = $('#lbWrap'); wrap.innerHTML = '';
-    LEADERBOARD.sort((a,b)=>b.value-a.value);
-    LEADERBOARD.forEach((p,i) => {
-      const c = document.createElement('div'); c.className='card';
-      c.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${i+1}. ${p.user}</strong><div class="small muted">Value</div></div><div style="font-weight:900">${fmt(p.value)}</div></div>`;
-      wrap.appendChild(c);
-    });
-  }
-
-  // Gallery
-  function renderGallery(){
-    const app = $('#app'); app.innerHTML = `<h2>Gallery</h2><div class="muted">Cover art & posters</div><div style="margin-top:12px" class="card"><div class="grid-cards" id="galleryGrid"></div></div>`;
-    const g = $('#galleryGrid'); g.innerHTML = '';
-    ARTISTS.forEach(a => { const d = document.createElement('div'); d.className='poster'; d.innerHTML = `<img src="${a.poster}" alt="${a.name} poster">`; g.appendChild(d); d.addEventListener('click', ()=> openLightbox(a.poster)); });
-  }
-
-  // Insights (AI)
-  function renderInsights(){
-    const app = $('#app'); app.innerHTML = `<h2>AI Insights</h2><div class="muted">Summarize artist news & get trading insight</div><div style="margin-top:12px" class="card"><textarea id="aiText" rows="6" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#fff"></textarea><div style="margin-top:8px" class="controls"><button id="genAI" class="btn">Generate</button><button id="genLocal" class="btn ghost">Local</button></div><div id="aiOut" class="muted" style="margin-top:8px"></div></div>`;
-    $('#genAI').addEventListener('click', async ()=> {
-      const t = $('#aiText').value.trim(); if(!t) return toast('Paste text first');
-      $('#aiOut').textContent = 'Generating…';
-      try{ const out = await summarize(t); $('#aiOut').innerHTML = out.replace(/\n/g,'<br/>'); }catch(e){ $('#aiOut').textContent = 'AI error: ' + e.message; }
-    });
-    $('#genLocal').addEventListener('click', ()=> { $('#aiOut').textContent = localSummarize($('#aiText').value.trim()); });
-  }
-
-  // Summarize (serverless optional)
-  async function summarize(text){
-    if(!APP_CONFIG.SERVER_SUMMARIZE_URL) return localSummarize(text);
-    const res = await fetch(APP_CONFIG.SERVER_SUMMARIZE_URL, { method:'POST', headers:{ 'Content-Type':'application/json', 'x-client-key': APP_CONFIG.CLIENT_KEY }, body: JSON.stringify({ text }) });
-    if(!res.ok){ const t = await res.text(); throw new Error(t || res.status); }
-    const j = await res.json(); return j.summary || j.result || j.output || '';
-  }
-  function localSummarize(text){ if(!text) return ''; const s = text.split(/[.?!]\s+/).filter(Boolean); if(s.length<=2) return text; const first=s[0]; const sorted=[...s].sort((a,b)=>b.length-a.length); return `${first}.\n\n• ${sorted[0]}.\n\n• ${sorted[1]}.`; }
-
-  // PDF export
-  async function exportPDF(){
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit:'pt', format:'a4' });
-    doc.setFontSize(16); doc.text("AfroGenstas — Portfolio Report", 40, 60);
-    doc.setFontSize(11); doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 80);
-    doc.text(`User: ${PROFILE.user}`, 40, 98); doc.text(`Cash: ${fmt(PROFILE.portfolio.cash)}`, 40, 116);
-    let y=140; doc.text("Holdings:", 40, y); y+=14;
-    for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)){
-      const last = priceState[t].last; doc.text(`${t} • Qty: ${h.qty} • Avg: ${h.avg.toFixed(2)} • Last: ${last.toFixed(2)} • Value: ${(last*h.qty).toFixed(2)}`, 48, y);
-      y += 12; if(y>720){ doc.addPage(); y=40; }
-    }
-    doc.save(`afrogenstas-portfolio-${Date.now()}.pdf`);
-  }
-
-  /* ---------------- Utilities ---------------- */
-  function computeMetrics(series){
-    if(!series || series.length < 2) return { annual_return:0, volatility_ann:0, sharpe:0 };
-    const rets=[]; for(let i=1;i<series.length;i++) rets.push((series[i]-series[i-1])/series[i-1]);
-    const mean = rets.reduce((a,b)=>a+b,0)/rets.length; const variance = rets.reduce((a,b)=>a+(b-mean)*(b-mean),0)/(Math.max(1, rets.length-1));
-    const sd = Math.sqrt(variance); const volAnn = sd * Math.sqrt(252); const ann = mean * 252; const sharpe = volAnn>0 ? ann/volAnn : 0;
-    return { annual_return: ann, volatility_ann: volAnn, sharpe };
-  }
-
-  // Lightbox
-  function openLightbox(src){ $('#lightboxImg').src = src; $('#lightbox').style.display = 'grid'; $('#lightbox').setAttribute('aria-hidden','false'); }
-  $('#lightbox')?.addEventListener('click', ()=> { $('#lightbox').style.display='none'; $('#lightbox').setAttribute('aria-hidden','true'); });
-
-  // Update ticker and spotlight
-  function renderTicker(){
-    const el = $('#ticker'); if(!el) return; el.innerHTML = '';
-    ARTISTS.forEach(a => {
-      const s = priceState[a.ticker]; const prev = s.history[s.history.length-2] || s.last; const pct = prev?((s.last - prev)/prev)*100:0;
-      const d = document.createElement('div'); d.className='tick';
-      d.innerHTML = `<div><div style="font-weight:800">${a.ticker}</div><div class="small muted">${a.name}</div></div><div style="text-align:right"><div style="font-weight:900">${s.last.toFixed(2)}</div><div class="small muted" style="color:${pct>=0? '#2dd4bf':'#ff6b6b'}">${pct>=0?'+':''}${pct.toFixed(2)}%</div></div>`;
-      el.appendChild(d);
-    });
-  }
-
-  function updateSpotlightFrame(){
-    const top = getTopArtist(); if(!top) return; $('#spotFrame').src = top.sketch || '';
-  }
-  function getTopArtist(){ let best=null, bestScore=-Infinity; ARTISTS.forEach(a => { const s = priceState[a.ticker]; const score = s.last * (1 + s.popularity/100); if(score > bestScore){ bestScore = score; best = a; } }); return best; }
-
-  // Snapshot / leaderboard update
-  function updateSnapshot(){
-    let equity=0; for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)) equity += (priceState[t].last || 0) * h.qty;
-    const total = PROFILE.portfolio.cash + equity;
-    const you = LEADERBOARD.find(x => x.user==='You') || (LEADERBOARD[3] = { user:'You', value:0 }); you.value = Math.round(total);
-  }
-
-  /* ---------------- Install prompt animation ---------------- */
-  let deferredPrompt = null;
-  window.addEventListener('beforeinstallprompt', (e)=>{
-    e.preventDefault(); deferredPrompt = e;
-    const p = $('#installPrompt'); p.style.display='flex'; requestAnimationFrame(()=> p.classList.add('show'));
-    // auto hide
-    setTimeout(()=>{ if(p) p.classList.remove('show'); }, 10000);
-  });
-  $('#installAccept')?.addEventListener('click', async ()=>{
-    const p = $('#installPrompt'); p.classList.remove('show');
-    if(!deferredPrompt){ toast('Install unavailable'); return; }
-    deferredPrompt.prompt(); const choice = await deferredPrompt.userChoice; if(choice.outcome==='accepted') toast('Installed — welcome!'); else toast('Install dismissed'); deferredPrompt=null;
-  });
-  $('#installDismiss')?.addEventListener('click', ()=> { $('#installPrompt').classList.remove('show'); toast('You can install later'); });
-
-  /* ---------------- Runtime service worker & manifest ---------------- */
-  async function registerRuntimeSW(){
-    if(!('serviceWorker' in navigator)) return;
-    const sw = `
-      const CACHE='afrogenstas-static-v1';
-      self.addEventListener('install', e=>{ self.skipWaiting(); });
-      self.addEventListener('activate', e=>{ self.clients.claim(); });
-      self.addEventListener('fetch', e=>{ if(e.request.method !== 'GET') return; e.respondWith(fetch(e.request).catch(()=>caches.match(e.request).then(r=>r||caches.match('/index.html')))); });
-    `;
-    try{ const blob = new Blob([sw], { type:'text/javascript' }); const url = URL.createObjectURL(blob); await navigator.serviceWorker.register(url); }catch(e){ console.warn('SW failed', e); }
-  }
-  function createManifest(){
-    const manifest = { name:'AfroGenstas', short_name:'AfroGenstas', start_url:'.', display:'standalone', background_color:'#07060A', theme_color:'#FF6B00', icons:[{src:'https://api.dicebear.com/6.x/shapes/svg?seed=afrogenstas',sizes:'192x192',type:'image/svg+xml'}] };
-    const blob = new Blob([JSON.stringify(manifest)], { type:'application/json' }); const url = URL.createObjectURL(blob); let link = document.querySelector('link[rel="manifest"]'); if(!link){ link=document.createElement('link'); link.rel='manifest'; document.head.appendChild(link); } link.href = url;
-  }
-
-  /* ---------------- Boot ---------------- */
-  function boot(){
-    initNav();
-    createManifest();
-    registerRuntimeSW();
-    init3DBackground();
-    initPrices();
-    updateProfileUI();
-    navigate(location.hash.replace('#','') || 'home', false);
-    // global actions
-    $('#btnExport')?.addEventListener('click', exportPDF);
-    setTimeout(()=> { renderTicker(); updateSpotlightFrame(); updateSnapshot(); }, 600);
-  }
-
-  function initNav(){
-    $$('#topNav button').forEach(b => b.addEventListener('click', () => { $$('#topNav button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); navigate(b.dataset.route); }));
-    $$('.bottom-nav .nav-item').forEach(n => n.addEventListener('click', () => { $$('.bottom-nav .nav-item').forEach(x=>x.classList.remove('active')); n.classList.add('active'); navigate(n.dataset.route); }));
-    window.addEventListener('popstate', ()=> { const r = location.hash.replace('#','') || 'home'; navigate(r, true); });
-  }
-
-  /* ---------------- Metrics (exposed) ---------------- */
-  window.Afrogenstas = { PROFILE, ARTISTS, priceState, navigate };
-
-  // Start
-  boot();
-
-})();
-</script>
+        // Initialize
+        initCharts();
+        initThreeJS();
+        updatePortfolio();
+    </script>
 </body>
 </html>
