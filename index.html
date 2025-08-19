@@ -3,263 +3,651 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>AfroGenstas — Music Meets Finance </title>
+<title>AfroGenstas — Music Meets Finance (PWA, Multi‑Page Single File)</title>
 
-<!-- Chart.js, Three.js, jsPDF -->
+<!-- CDNs -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+<!-- Basic styles (mobile-first, responsive) -->
 <style>
-  /* mobile-first CSS (same as supplied previously) */
-  :root{ --bg:#04050a; --panel:#0b1220; --muted:#9aa9bf; --accent1:#FF7F50; --accent2:#7C5CFF; --glass: rgba(255,255,255,0.025); --radius:14px; --maxWidth:1080px; }
-  *{box-sizing:border-box} html,body{height:100%}
-  body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;background: radial-gradient(700px 360px at 8% 10%, rgba(124,92,255,0.04), transparent), var(--bg);color:#eaf2ff;}
-  header{position:sticky;top:0;z-index:80;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:linear-gradient(180deg, rgba(2,4,10,0.6), rgba(2,4,10,0.25));border-bottom:1px solid rgba(255,255,255,0.03);backdrop-filter: blur(6px)}
-  .brand{display:flex;gap:12px;align-items:center} .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:grid;place-items:center;font-weight:900;color:#021}
-  .title{font-weight:800;font-size:1.05rem} .tag{color:var(--muted);font-size:.85rem}
-  nav{display:flex;gap:8px;align-items:center} nav button{background:transparent;border:none;color:var(--muted);padding:8px 10px;border-radius:8px;cursor:pointer} nav button.active{color:#fff;background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))}
+  :root{
+    --bg:#04050a; --panel:#0b1220; --muted:#9aa9bf;
+    --accent1:#FF7F50; --accent2:#7C5CFF; --glass: rgba(255,255,255,0.03);
+    --radius:14px; --maxWidth:1100px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;}
+  body{background:radial-gradient(700px 360px at 8% 10%, rgba(124,92,255,0.04), transparent), var(--bg); color:#eaf2ff;-webkit-font-smoothing:antialiased;overflow-y:auto}
+  header{position:sticky;top:0;z-index:90;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:linear-gradient(180deg, rgba(2,4,10,0.6), rgba(2,4,10,0.25));border-bottom:1px solid rgba(255,255,255,0.03)}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:grid;place-items:center;font-weight:900;color:#021}
+  nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  nav button{background:transparent;border:none;color:var(--muted);padding:8px 10px;border-radius:8px;cursor:pointer}
+  nav button.active{color:#fff;background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))}
   main{max-width:var(--maxWidth);margin:12px auto;padding:12px;display:grid;grid-template-columns:1fr;gap:12px}
-  @media(min-width:960px){ main{grid-template-columns: 720px 1fr } }
+  @media(min-width:980px){ main{grid-template-columns: 2fr 420px} }
   .card{background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)); border:1px solid rgba(255,255,255,0.03); padding:14px; border-radius:var(--radius); box-shadow:0 10px 40px rgba(2,6,23,0.5)}
-  h1,h2,h3{margin:0} .muted{color:var(--muted);font-size:.95rem}
-  .hero{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:12px;background:linear-gradient(90deg, rgba(124,92,255,0.06), rgba(255,127,80,0.02))}
-  .ticker{display:flex;gap:8px;overflow-x:auto;padding:10px;border-radius:12px;background:var(--glass);white-space:nowrap} .tick{min-width:140px;padding:8px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .muted{color:var(--muted)}
+  .hero{display:flex;flex-direction:column;gap:12px;padding:12px;border-radius:12px;background:linear-gradient(90deg, rgba(124,92,255,0.06), rgba(255,127,80,0.02))}
+  .ticker{display:flex;gap:8px;overflow-x:auto;padding:10px;border-radius:12px;background:var(--glass);white-space:nowrap}
+  .tick{min-width:140px;padding:8px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);display:flex;justify-content:space-between;gap:8px;align-items:center}
   .grid-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-  table{width:100%;border-collapse:collapse;margin-top:10px} th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left} th{color:var(--accent1);font-weight:700}
-  .lightbox{position:fixed;inset:0;background:rgba(2,2,6,0.8);display:none;place-items:center;z-index:200}
-  .lightbox img{max-width:92%;max-height:86%;border-radius:12px;box-shadow:0 20px 80px rgba(0,0,0,0.8)}
-  .gallery{display:flex;gap:8px;overflow-x:auto;padding:8px}
-  .poster{width:120px;height:120px;border-radius:10px;flex:0 0 auto;overflow:hidden;cursor:pointer}
-  .poster img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}
-  .poster:hover img{transform:scale(1.04)}
-  .three-wrap{width:100%;height:280px;border-radius:12px;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));display:flex;align-items:center;justify-content:center}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left}
+  th{color:var(--accent1);font-weight:700}
+  .three-wrap{width:100%;height:260px;border-radius:12px;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));display:flex;align-items:center;justify-content:center}
   iframe.sketch{width:100%;height:100%;border:0}
   .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .input{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#fff}
   .btn{background:linear-gradient(90deg,var(--accent2),var(--accent1));border:none;padding:10px 12px;border-radius:10px;color:#021;font-weight:800;cursor:pointer}
   .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff}
-  .xp-bar{height:12px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden}
-  .xp-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent1));width:0%}
-  footer{padding:12px 8px;text-align:center;color:var(--muted);font-size:.9rem;margin-top:8px}
+  .poster{width:120px;height:120px;border-radius:10px;flex:0 0 auto;overflow:hidden;cursor:pointer}
+  .poster img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}
+  .poster:hover img{transform:scale(1.04)}
+  .lightbox{position:fixed;inset:0;background:rgba(2,2,6,0.8);display:none;place-items:center;z-index:200}
+  .lightbox img{max-width:92%;max-height:86%;border-radius:12px;box-shadow:0 20px 80px rgba(0,0,0,0.8)}
+  footer{padding:12px;text-align:center;color:var(--muted);font-size:.9rem;margin-top:8px}
   .toast{position:fixed;right:16px;bottom:16px;background:linear-gradient(90deg,var(--accent2),var(--accent1));padding:10px 14px;border-radius:10px;color:#021;font-weight:700;z-index:220}
-  @media(min-width:960px){ .hero { flex-direction:row } }
 </style>
 </head>
 <body>
 
-<canvas id="bgCanvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.42"></canvas>
+<!-- background canvas -->
+<canvas id="bg3d" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.42"></canvas>
 
 <header>
   <div class="brand">
     <div class="logo">AG</div>
     <div>
-      <div class="title">AfroGenstas</div>
-      <div class="tag muted">Music • Markets • Gamified</div>
+      <div style="font-weight:800">AfroGenstas</div>
+      <div class="muted" style="font-size:.85rem">Music · Markets · Play</div>
     </div>
   </div>
-
-  <nav>
-    <button data-route="market" class="active">Market</button>
+  <nav id="nav">
+    <button data-route="home" class="active">Home</button>
+    <button data-route="market">Market</button>
     <button data-route="portfolio">Portfolio</button>
     <button data-route="leaderboard">Leaderboard</button>
     <button data-route="gallery">Gallery</button>
-    <button data-route="quests">Quests</button>
     <button data-route="insights">AI</button>
   </nav>
 </header>
 
 <main>
-  <section id="app" class="card" style="z-index:20"></section>
+  <section id="view" class="card" style="z-index:20"></section>
 
   <aside style="z-index:20">
     <div class="card">
       <h3>Live Ticker</h3>
-      <div id="ticker" class="ticker small muted"></div>
+      <div id="ticker" class="ticker muted"></div>
     </div>
 
     <div class="card" style="margin-top:12px">
       <h3>Profile</h3>
       <div style="display:flex;gap:10px;align-items:center">
         <div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:grid;place-items:center;font-weight:800">U</div>
-        <div style="flex:1">
+        <div>
           <div id="userName" style="font-weight:800">Guest</div>
-          <div class="muted small" id="userLevel">Lv 1 • XP <span id="xpVal">0</span></div>
-          <div class="xp-bar" style="margin-top:8px"><div id="xpBar" class="xp-fill"></div></div>
+          <div class="muted" id="userMeta">Lv 1 • XP 0</div>
         </div>
       </div>
       <div style="margin-top:10px" class="controls">
-        <button id="btnInstall" class="btn">Install App</button>
+        <button id="btnInstall" class="btn">Install</button>
         <button id="btnExport" class="btn ghost">Export PDF</button>
       </div>
     </div>
 
     <div class="card" style="margin-top:12px">
-      <h3>3D Spotlight</h3>
+      <h3>Spotlight 3D</h3>
       <div id="spot3d" class="three-wrap">
-        <iframe id="sketchframe" class="sketch" src="" title="Artist 3D visual" allow="autoplay; fullscreen; webxr"></iframe>
+        <iframe id="sketchframe" class="sketch" src="" title="3D spotlight" allow="autoplay; fullscreen; vr"></iframe>
       </div>
-      <div class="muted small" style="margin-top:8px">Top artist visual — updates with market leader</div>
+      <div class="muted" style="margin-top:8px">Top artist visual</div>
     </div>
 
     <div class="card" style="margin-top:12px">
       <h3>Sponsored</h3>
-      <div class="muted small">Ad slot — replace with AdSense snippet when ready</div>
+      <div class="muted">Ad slot — replace with AdSense when ready</div>
+      <!-- AdSense placeholder (commented) -->
+      <!--
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXX" crossorigin="anonymous"></script>
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXX" data-ad-slot="123456" data-ad-format="auto"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      -->
     </div>
   </aside>
 </main>
 
-<footer>© 2025 AfroGenstas — Build, play & invest in Afrobeat culture</footer>
+<footer>© 2025 AfroGenstas — deploy to GitHub Pages or Vercel</footer>
 
+<!-- Lightbox -->
 <div id="lightbox" class="lightbox" role="dialog" aria-hidden="true" style="display:none">
   <img id="lightboxImg" alt="Artwork" />
 </div>
 
+<!-- ================= APP SCRIPT ================= -->
 <script>
-/* ---------------- CONFIG: set to your deployed endpoints and client key ---------------- */
+/*
+  AfroGenstas - Single-file Multi-page PWA
+  - Save as index.html and serve as static site (GitHub Pages, Vercel)
+  - Set APP_CONFIG.SERVER_SUMMARIZE_URL to your serverless summarizer (Gemini) if you have one
+  - No secrets included. Use serverless functions for Gemini/OpenBB.
+*/
+
 const APP_CONFIG = {
-  SERVER_SUMMARIZE_URL: '/api/summarize', // or https://your-vercel-domain/api/summarize
-  CLIENT_KEY: 'public-demo-key-123',      // must match server-side CLIENT_KEY env var (convenience token)
-  OPENBB_URL: '',                         // optional analytics microservice
-  ADSENSE_CLIENT: '',                     // replace with AdSense ID in production
+  SERVER_SUMMARIZE_URL: '/api/summarize', // set to your serverless endpoint (optional)
+  CLIENT_KEY: 'public-demo-key-123',      // convenience token sent in header; replace with proper auth in prod
   VERSION: '1.0.0'
 };
 
-/* ---------- Artist sample dataset (replace posters with real album art in /public/assets) ---------- */
+/* ---------- Demo artist dataset (replace posters with your assets) ---------- */
 const ARTISTS = [
-  { ticker:'$BURNA', name:'Burna Boy', color:'#FF7F50', poster:'/assets/burna.jpg', cover:'/assets/cover1.jpg', sketch:'https://sketchfab.com/models/8208f257d2d3457183e866eb990e6511/embed' },
-  { ticker:'$REMA', name:'Rema', color:'#39D98A', poster:'/assets/rema.jpg', cover:'/assets/cover2.jpg', sketch:'https://sketchfab.com/models/4f2a3b8f3f2b4e0e9728f2bd1/embed' },
-  { ticker:'$ASAKE', name:'Asake', color:'#7C5CFF', poster:'/assets/asake.jpg', cover:'/assets/cover3.jpg', sketch:'https://sketchfab.com/models/9f6b0e3f3f374b4b8b4f6a4f/embed' }
+  { ticker:'$BURNA', name:'Burna Boy', color:'#FF7F50', poster:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop', cover:'https://images.unsplash.com/photo-1544148106-0c3b8403d5f4?q=80&w=1200&auto=format&fit=crop', sketch:'https://sketchfab.com/models/8208f257d2d3457183e866eb990e6511/embed' },
+  { ticker:'$REMA',  name:'Rema',      color:'#39D98A', poster:'https://images.unsplash.com/photo-1520975687175-9e0c8d2b5d04?q=80&w=1200&auto=format&fit=crop', cover:'https://images.unsplash.com/photo-1505685296765-3a2736de412f?q=80&w=1200&auto=format&fit=crop', sketch:'https://sketchfab.com/models/4f2a3b8f3f2b4e0e9728f2bd1/embed' },
+  { ticker:'$ASAKE', name:'Asake',     color:'#7C5CFF', poster:'https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=1200&auto=format&fit=crop', cover:'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1200&auto=format&fit=crop', sketch:'https://sketchfab.com/models/9f6b0e3f3f374b4b8b4f6a4f/embed' }
 ];
 
 /* ---------- State & persistence ---------- */
-const LS_KEY = 'afrogenstas_prod_v1';
-function defaultProfile(){ return { user:'Guest', xp:0, level:1, streak:0, questsCompleted:[], portfolio:{ cash:15000, holdings:{}, history:[] }, achievements:{} }; }
-let PROFILE = loadState();
-let currentRoute = 'market';
-const priceState = {}; // ticker -> { history: [], last, popularity }
+const LS_KEY = 'afrogenstas_v1';
+function defaultProfile(){ return { user:'Guest', xp:0, level:1, portfolio:{ cash:15000, holdings:{}, history:[] }, quests:[] }; }
+let PROFILE = loadProfile();
+let currentRoute = 'home';
+const priceState = {}; // ticker -> { history:[], last, popularity }
 
-/* ---------- Utils ---------- */
+/* ---------- Helpers ---------- */
 function $(s){ return document.querySelector(s); }
-function el(tag, attrs={}, ...ch){ const e = document.createElement(tag); for(const k in attrs) e.setAttribute(k, attrs[k]); ch.forEach(c => typeof c === 'string' ? e.appendChild(document.createTextNode(c)) : e.appendChild(c)); return e; }
-function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(PROFILE)); }
-function loadState(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || defaultProfile(); }catch(e){ return defaultProfile(); } }
+function el(tag, attrs={}, text=''){ const e=document.createElement(tag); for(const k in attrs) e.setAttribute(k, attrs[k]); if(text) e.textContent = text; return e; }
+function saveProfile(){ localStorage.setItem(LS_KEY, JSON.stringify(PROFILE)); }
+function loadProfile(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || defaultProfile(); }catch(e){ return defaultProfile(); } }
 function nowISO(){ return new Date().toISOString(); }
-function toast(msg, t=2200){ const d = el('div', { class:'toast' }, msg ); document.body.appendChild(d); setTimeout(()=>d.remove(), t); }
+function toast(msg,t=2200){ const d = el('div', { class:'toast' }, msg); d.textContent = msg; document.body.appendChild(d); setTimeout(()=> d.remove(), t); }
 function hexToRgba(hex, a=0.12){ const c=hex.replace('#',''); const r=parseInt(c.substring(0,2),16), g=parseInt(c.substring(2,4),16), b=parseInt(c.substring(4,6),16); return `rgba(${r},${g},${b},${a})`; }
-function fmt(v){ return '$' + Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
-
-/* ---------- Gamification ---------- */
-function addXP(amount, reason=''){ PROFILE.xp += amount; const nextXp = 100 + (PROFILE.level-1)*75; if(PROFILE.xp >= nextXp){ PROFILE.xp -= nextXp; PROFILE.level += 1; PROFILE.streak = (PROFILE.streak || 0) + 1; toast(`Level up! ${PROFILE.user} is now level ${PROFILE.level}`); PROFILE.achievements[`level_${PROFILE.level}`] = { at: nowISO() }; } saveState(); updateProfileUI(); }
-function updateProfileUI(){ $('#userName').textContent = PROFILE.user || 'Guest'; $('#xpVal').textContent = PROFILE.xp || 0; $('#userLevel').textContent = `Lv ${PROFILE.level} • XP ${PROFILE.xp}`; const pct = Math.min(100, Math.round((PROFILE.xp / (100 + (PROFILE.level-1)*75)) * 100)); $('#xpBar').style.width = pct + '%'; }
 
 /* ---------- Price simulation ---------- */
-function initPrices(){ ARTISTS.forEach(a=>{ const base = 50 + Math.random()*220; priceState[a.ticker] = { history: Array.from({length:48}, (_,i)=> Math.round((base + Math.sin(i/4)*8 + Math.random()*6)*100)/100), last: Math.round(base*100)/100, popularity: 30 + Math.random()*70 }; }); priceTickLoop(); }
-function randWalk(p){ return Math.max(1, p * (1 + (Math.random()-0.5)*0.03)); }
-function priceTickLoop(){ ARTISTS.forEach(a=>{ const s = priceState[a.ticker]; s.last = Math.round(randWalk(s.last)*100)/100; s.popularity = Math.max(0, Math.min(100, s.popularity + (Math.random()-0.5)*3)); s.history.push(s.last); if(s.history.length>300) s.history.shift(); }); renderTicker(); if(currentRoute==='market') renderMarketBody(); if(currentRoute==='portfolio') updateHoldingsUI(); updateSpotlight(); setTimeout(priceTickLoop, 3000 + Math.random()*2000); }
+function initPrices(){
+  ARTISTS.forEach(a=>{
+    const base = 60 + Math.random()*200;
+    priceState[a.ticker] = { history: Array.from({length:48}, (_,i)=> Math.round((base + Math.sin(i/5)*8 + Math.random()*6)*100)/100), last: Math.round(base*100)/100, popularity: 30 + Math.random()*70 };
+  });
+  priceTick();
+}
+function randWalk(v){ return Math.max(1, v * (1 + (Math.random()-0.5)*0.03)); }
+function priceTick(){
+  ARTISTS.forEach(a=>{
+    const s = priceState[a.ticker];
+    s.last = Math.round(randWalk(s.last) * 100) / 100;
+    s.popularity = Math.max(0, Math.min(100, s.popularity + (Math.random()-0.5)*3));
+    s.history.push(s.last);
+    if(s.history.length > 300) s.history.shift();
+  });
+  renderTicker();
+  if(currentRoute === 'market') renderMarketBody();
+  if(currentRoute === 'portfolio') updateHoldingsUI();
+  updateSpotlight();
+  setTimeout(priceTick, 3000 + Math.random()*2000);
+}
 
-/* ---------- Routing & nav ---------- */
-const ROUTES = { market: renderMarket, portfolio: renderPortfolio, leaderboard: renderLeaderboard, gallery: renderGallery, quests: renderQuests, insights: renderInsights };
-function initNav(){ document.querySelectorAll('nav button').forEach(b=> b.addEventListener('click', ()=>{ document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); const route=b.dataset.route; currentRoute=route; history.pushState({route}, '', '#'+route); ROUTES[route](); })); window.addEventListener('popstate', ()=>{ const r = location.hash.replace('#','') || 'market'; if(ROUTES[r]){ document.querySelectorAll('nav button').forEach(x=> x.classList.toggle('active', x.dataset.route===r)); currentRoute=r; ROUTES[r](); } }); }
+/* ---------- PWA install handling ---------- */
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault(); deferredPrompt = e;
+  $('#btnInstall') && ($('#btnInstall').style.display = 'inline-block');
+});
+$('#btnInstall') && $('#btnInstall').addEventListener('click', async ()=>{
+  if(!deferredPrompt){ toast('Install prompt not available'); return; }
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if(outcome === 'accepted') toast('App installed 🎉'); else toast('Install dismissed');
+  deferredPrompt = null;
+});
 
-/* ---------- Ticker ---------- */
-function renderTicker(){ const tEl = document.getElementById('ticker'); if(!tEl) return; tEl.innerHTML=''; ARTISTS.forEach(a=>{ const s=priceState[a.ticker]; const prev = s.history[s.history.length-2] || s.last; const pct = ((s.last - prev)/prev)*100; const d = el('div', { class:'tick' }); d.innerHTML = `<div><div style="font-weight:800">${a.ticker}</div><div class="muted small">${a.name}</div></div><div style="text-align:right"><div style="font-weight:800">${s.last.toFixed(2)}</div><div class="muted small">${pct>=0?'+':''}${pct.toFixed(2)}%</div></div>`; tEl.appendChild(d); }); }
+/* ---------- Runtime service worker & manifest ---------- */
+async function registerRuntimeSW(){
+  if(!('serviceWorker' in navigator)) return;
+  const swCode = `
+    const CACHE = 'afrogenstas-cache-v1';
+    self.addEventListener('install', e=> { self.skipWaiting(); });
+    self.addEventListener('activate', e=> { self.clients.claim(); });
+    self.addEventListener('fetch', e=> {
+      if(e.request.method !== 'GET') return;
+      e.respondWith(fetch(e.request).catch(()=> caches.match(e.request).then(r => r || caches.match('/index.html'))));
+    });
+  `;
+  try{
+    const blob = new Blob([swCode], { type:'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    await navigator.serviceWorker.register(url);
+    console.log('SW registered');
+  }catch(err){ console.warn('SW failed', err); }
+}
+function createManifest(){
+  const manifest = {
+    name: 'AfroGenstas', short_name:'AfroGenstas',
+    start_url: '.', display:'standalone', theme_color: '#7C5CFF', background_color:'#04050a',
+    icons: [{src:'https://api.dicebear.com/6.x/shapes/svg?seed=afrogenstas', sizes:'192x192', type:'image/svg+xml'}]
+  };
+  const b = new Blob([JSON.stringify(manifest)], { type:'application/json' });
+  const url = URL.createObjectURL(b);
+  let link = document.querySelector('link[rel="manifest"]');
+  if(!link){ link = document.createElement('link'); link.rel = 'manifest'; document.head.appendChild(link); }
+  link.href = url;
+}
 
-/* ---------- MARKET ---------- */
+/* ---------- Navigation (hash routing) ---------- */
+const ROUTES = { home: renderHome, market: renderMarket, portfolio: renderPortfolio, leaderboard: renderLeaderboard, gallery: renderGallery, insights: renderInsights };
+function initNav(){
+  document.querySelectorAll('nav button').forEach(b=>{
+    b.addEventListener('click', ()=> {
+      document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+      const route = b.dataset.route; currentRoute = route; history.pushState({route}, '', '#'+route); ROUTES[route]();
+    });
+  });
+  window.addEventListener('popstate', ()=> {
+    const r = location.hash.replace('#','') || 'home';
+    if(ROUTES[r]){ document.querySelectorAll('nav button').forEach(x=> x.classList.toggle('active', x.dataset.route===r)); currentRoute = r; ROUTES[r](); }
+  });
+}
+
+/* ================= VIEW RENDERERS ================= */
+
+/* Home summary */
+function renderHome(){
+  const v = document.getElementById('view');
+  v.innerHTML = `
+    <div class="hero">
+      <div>
+        <h2>AfroGenstas</h2>
+        <p class="muted">Music-meets-finance — invest in Afrobeat artists, trade song futures, and compete on leaderboards.</p>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button id="gotoMarket" class="btn">Open Market</button>
+        <button id="gotoPortfolio" class="btn ghost">My Portfolio</button>
+      </div>
+    </div>
+
+    <div style="margin-top:12px" class="card">
+      <h3>Top Artists</h3>
+      <div id="topGrid" class="grid-cards" style="margin-top:10px"></div>
+    </div>
+
+    <div style="margin-top:12px" class="card">
+      <h3>3D Spotlight</h3>
+      <div class="three-wrap"><iframe id="homeSketch" class="sketch" src="" allow="autoplay; fullscreen"></iframe></div>
+    </div>
+  `;
+  document.getElementById('gotoMarket').addEventListener('click', ()=> navigate('market'));
+  document.getElementById('gotoPortfolio').addEventListener('click', ()=> navigate('portfolio'));
+  // top artists
+  const grid = document.getElementById('topGrid');
+  ARTISTS.forEach(a=>{
+    const s = priceState[a.ticker];
+    const card = document.createElement('div'); card.className = 'card';
+    card.innerHTML = `<div style="display:flex;gap:10px;align-items:center"><div style="width:70px;height:70px;border-radius:10px;overflow:hidden"><img src="${a.poster}" style="width:100%;height:100%;object-fit:cover" /></div><div style="flex:1"><strong>${a.name}</strong><div class="muted small">${a.ticker} • ${s.last.toFixed(2)}</div></div><div><button class="btn ghost" data-t="${a.ticker}">View</button></div></div>`;
+    grid.appendChild(card);
+    card.querySelector('[data-t]').addEventListener('click', ()=> openArtist(a.ticker));
+  });
+  // home 3d
+  document.getElementById('homeSketch').src = ARTISTS[0].sketch;
+}
+
+/* Market */
 let marketChart = null;
-function renderMarket(){ const app = document.getElementById('app'); app.innerHTML = `
-  <div class="hero">
-    <div class="hero-left">
-      <h2>Artist Market</h2><p class="muted">Invest in Afrobeat artists. Build your portfolio, trade song futures, and climb leaderboards.</p>
-      <div id="spotlightArea" class="card" style="margin-top:12px"></div>
+function renderMarket(){
+  const v = document.getElementById('view');
+  v.innerHTML = `
+    <h2>Artist Market</h2>
+    <p class="muted">Real-time simulated market — every artist is a 'stock' ticker.</p>
+
+    <div style="margin-top:12px" class="card">
+      <h3>Market</h3>
+      <table><thead><tr><th>Artist</th><th>Ticker</th><th>Price</th><th>Popularity</th><th>Actions</th></tr></thead><tbody id="marketBody"></tbody></table>
     </div>
-    <div class="hero-right">
-      <div class="card"><h3>Market Snapshot</h3><div id="miniTicker" class="ticker small muted" style="margin-top:8px"></div></div>
+
+    <div style="margin-top:12px" class="card">
+      <h3>Price History</h3>
+      <canvas id="marketChart" style="height:180px"></canvas>
+      <div class="controls" style="margin-top:8px">
+        <select id="artistSelect" class="input">${ARTISTS.map(a=>`<option value="${a.ticker}">${a.ticker} — ${a.name}</option>`).join('')}</select>
+        <button id="viewChartBtn" class="btn ghost">View</button>
+      </div>
     </div>
-  </div>
-  <div style="margin-top:12px" class="card">
-    <h3>Artists</h3><table><thead><tr><th>Artist</th><th>Ticker</th><th>Price</th><th>Popularity</th><th>Actions</th></tr></thead><tbody id="marketBody"></tbody></table>
-  </div>
-  <div style="margin-top:12px" class="card"><h3>Price History (selected)</h3><canvas id="marketChart" style="height:180px"></canvas><div class="controls" style="margin-top:8px"><select id="artistSelect" class="input">${ARTISTS.map(a=>`<option value="${a.ticker}">${a.ticker} — ${a.name}</option>`).join('')}</select><button id="btnViewChart" class="btn ghost">View</button></div></div>
-`; renderMarketBody(); document.getElementById('btnViewChart').addEventListener('click', ()=> { const t = document.getElementById('artistSelect').value; drawMarketChart(t); }); drawMarketChart(ARTISTS[0].ticker); }
+  `;
+  document.getElementById('viewChartBtn').addEventListener('click', ()=> { const t=document.getElementById('artistSelect').value; drawMarketChart(t); });
+  drawMarketChart(ARTISTS[0].ticker);
+  renderMarketBody();
+}
+function renderMarketBody(){
+  const tbody = document.getElementById('marketBody');
+  const mini = document.getElementById('ticker');
+  if(!tbody) return;
+  tbody.innerHTML = '';
+  ARTISTS.forEach((a, idx)=>{
+    const s = priceState[a.ticker];
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${a.name}</td><td>${a.ticker}</td><td>${s.last.toFixed(2)}</td><td>${s.popularity.toFixed(1)}</td><td><div class="controls"><button class="btn" data-buy="${idx}">Buy</button><button class="btn ghost" data-view="${a.ticker}">View</button></div></td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-buy]').forEach(b=> b.addEventListener('click', e=> openTradeModal('BUY', ARTISTS[Number(e.currentTarget.dataset.buy)].ticker)));
+  tbody.querySelectorAll('[data-view]').forEach(b=> b.addEventListener('click', e=> openArtist(e.currentTarget.dataset.view)));
+}
+function drawMarketChart(ticker){
+  const ctx = document.getElementById('marketChart').getContext('2d');
+  const s = priceState[ticker];
+  const series = s.history.slice(-120);
+  if(marketChart) marketChart.destroy();
+  marketChart = new Chart(ctx, { type:'line', data:{ labels: series.map((_,i)=>i), datasets:[{ data: series, borderColor: ARTISTS.find(a=>a.ticker===ticker).color, backgroundColor: hexToRgba(ARTISTS.find(a=>a.ticker===ticker).color,.12), fill:true, tension:0.24 }]}, options:{plugins:{legend:{display:false}}, scales:{x:{display:false}}} });
+}
 
-function renderMarketBody(){ const tbody=document.getElementById('marketBody'); const mini=document.getElementById('miniTicker'); if(tbody) tbody.innerHTML=''; if(mini) mini.innerHTML=''; ARTISTS.forEach((a,idx)=>{ const s=priceState[a.ticker]; const tr = el('tr'); tr.innerHTML = `<td>${a.name}</td><td>${a.ticker}</td><td>${s.last.toFixed(2)}</td><td>${s.popularity.toFixed(1)}</td><td><div class="controls"><button class="btn" data-buy="${idx}">Buy</button><button class="btn ghost" data-view="${a.ticker}">View</button></div></td>`; tbody.appendChild(tr); const md = el('div', { class:'tick' }); md.innerHTML = `<div><strong>${a.ticker}</strong></div><div style="text-align:right">${s.last.toFixed(2)}</div>`; mini && mini.appendChild(md); }); tbody.querySelectorAll('[data-buy]').forEach(b=> b.addEventListener('click', e=> openTradeModal('BUY', ARTISTS[Number(e.currentTarget.dataset.buy)].ticker))); tbody.querySelectorAll('[data-view]').forEach(b=> b.addEventListener('click', e=> openArtistPanel(e.currentTarget.dataset.view))); }
-
-function drawMarketChart(ticker){ const ctx = document.getElementById('marketChart').getContext('2d'); const s = priceState[ticker]; const series = s.history.slice(-120); if(marketChart) marketChart.destroy(); marketChart = new Chart(ctx, { type:'line', data:{ labels: series.map((_,i)=>i), datasets:[{ data: series, borderColor: ARTISTS.find(a=>a.ticker===ticker).color, backgroundColor: hexToRgba(ARTISTS.find(a=>a.ticker===ticker).color,.12), fill:true, tension:0.28 }]}, options:{plugins:{legend:{display:false}}, scales:{x:{display:false}}} }); }
-
-/* ---------- Spotlight ---------- */
-function getTopArtist(){ let best=null, bestScore=-Infinity; ARTISTS.forEach(a=>{ const s=priceState[a.ticker]; const score = s.last * (1 + s.popularity/100); if(score>bestScore){ bestScore=score; best=a; } }); return best; }
-function updateSpotlight(){ const area = document.getElementById('spotlightArea'); if(!area) return; const top = getTopArtist(); area.innerHTML = `<div class="spotlight" style="display:flex;gap:12px;align-items:center"><div style="width:110px;height:110px;border-radius:10px;overflow:hidden"><img src="${top.poster}" style="width:100%;height:100%;object-fit:cover" alt="${top.name} poster"/></div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:800">${top.name}</div><div class="muted small">${top.ticker}</div></div><div style="text-align:right"><div style="font-weight:900">${priceState[top.ticker].last.toFixed(2)}</div><div class="muted small">Pop ${priceState[top.ticker].popularity.toFixed(1)}</div></div></div><div class="controls" style="margin-top:8px"><button id="buyTop" class="btn">Buy ${top.ticker}</button><button id="viewTop" class="btn ghost">View</button></div></div></div>`; document.getElementById('buyTop').addEventListener('click', ()=> openTradeModal('BUY', top.ticker)); document.getElementById('viewTop').addEventListener('click', ()=> openArtistPanel(top.ticker)); const sf=document.getElementById('sketchframe'); if(sf) sf.src = top.sketch || top.sketch; }
-
-/* ---------- Artist panel ---------- */
-function openArtistPanel(ticker){ const artist = ARTISTS.find(a=>a.ticker===ticker); const s=priceState[ticker]; const app = document.getElementById('app'); app.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><h2>${artist.name} <small class="muted">${artist.ticker}</small></h2><div class="muted small">Last: ${s.last.toFixed(2)} • Pop ${s.popularity.toFixed(1)}</div></div><div style="display:flex;gap:8px"><button id="backMarket" class="btn ghost">Back</button><button id="tradeArtist" class="btn">Trade</button></div></div><div style="margin-top:12px" class="card"><div style="display:flex;gap:12px;align-items:flex-start"><div style="flex:1"><canvas id="artistChart" style="height:200px"></canvas></div><div style="width:260px"><div style="height:160px;border-radius:10px;overflow:hidden"><img src="${artist.cover}" style="width:100%;height:100%;object-fit:cover" alt="${artist.name} cover"/></div><div style="margin-top:8px" class="controls"><button id="predictBtn" class="btn ghost">Predict</button><button id="summBtn" class="btn">Summarize (Gemini)</button></div><div id="artistInfo" class="muted small" style="margin-top:8px"></div></div></div></div>`; document.getElementById('backMarket').addEventListener('click', ()=> renderMarket()); document.getElementById('tradeArtist').addEventListener('click', ()=> openTradeModal('BUY', ticker)); document.getElementById('predictBtn').addEventListener('click', ()=> { const pred = predictTrend(s.history.slice(-80)); document.getElementById('artistInfo').innerHTML = `<strong>Prediction:</strong> ${pred.direction} • Confidence ${Math.round(pred.confidence*100)}% • Next ${pred.next.toFixed(2)}`; }); document.getElementById('summBtn').addEventListener('click', async ()=> { const info = document.getElementById('artistInfo'); info.textContent='Generating…'; try{ const text = `${artist.name} update: latest ${s.last}, popularity ${s.popularity.toFixed(1)}.`; const summary = await summarize(text); info.innerHTML = summary.replace(/\n/g,'<br/>'); }catch(err){ info.textContent = 'Summary failed: '+err.message; } }); const ctx=document.getElementById('artistChart').getContext('2d'); const series=s.history.slice(-120); new Chart(ctx,{ type:'line', data:{ labels: series.map((_,i)=>i), datasets:[{ data: series, borderColor: artist.color, backgroundColor: hexToRgba(artist.color,.12), fill:true, tension:0.28 }]}, options:{plugins:{legend:{display:false}}, scales:{x:{display:false}} } }); }
-
-/* ---------- Trade & portfolio ---------- */
-function openTradeModal(side='BUY', ticker=null){ const app=document.getElementById('app'); const modal = el('div',{class:'card'}); modal.style.marginBottom='12px'; modal.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><h3>${side} ${ticker?ticker:''}</h3><div class="muted small">Quick trade</div></div><div><button class="btn ghost close">Close</button></div></div><div style="margin-top:12px" class="controls"><select id="trTicker" class="input">${ARTISTS.map(a=>`<option value="${a.ticker}">${a.ticker} — ${a.name}</option>`).join('')}</select><input id="trQty" type="number" min="1" value="1" class="input" style="width:100px"/><button id="trConfirm" class="btn">${side}</button></div><div id="trPreview" class="muted small" style="margin-top:8px"></div>`; app.prepend(modal); if(ticker) modal.querySelector('#trTicker').value = ticker; modal.querySelector('.close').addEventListener('click', ()=> modal.remove()); const preview = modal.querySelector('#trPreview'); const updatePreview = ()=>{ const t=modal.querySelector('#trTicker').value; const q=Math.max(1,Math.floor(Number(modal.querySelector('#trQty').value)||1)); const price=priceState[t].last; preview.innerHTML = `Price: <strong>${price.toFixed(2)}</strong> • Total: <strong>${(price*q).toFixed(2)}</strong>`; }; modal.querySelector('#trTicker').addEventListener('change', updatePreview); modal.querySelector('#trQty').addEventListener('input', updatePreview); updatePreview(); modal.querySelector('#trConfirm').addEventListener('click', ()=>{ const t=modal.querySelector('#trTicker').value; const q=Math.max(1,Math.floor(Number(modal.querySelector('#trQty').value)||1)); executeTrade(side,t,q); modal.remove(); }); }
-
-function executeTrade(side,ticker,qty){ const price=priceState[ticker].last; if(side==='BUY'){ const cost=price*qty; if(cost>PROFILE.portfolio.cash){ toast('Insufficient cash'); return; } const hold = PROFILE.portfolio.holdings[ticker]||{qty:0,avg:0}; const newQty=hold.qty+qty; const newAvg = ((hold.avg*hold.qty) + price*qty) / (newQty || 1); PROFILE.portfolio.holdings[ticker] = { qty:newQty, avg:newAvg }; PROFILE.portfolio.cash -= cost; PROFILE.portfolio.history.push({t:nowISO(),action:'BUY',ticker,qty,price}); addXP(Math.max(5, Math.round(qty*0.5)),'Trade executed'); toast(`Bought ${qty} ${ticker}`); } else { const hold = PROFILE.portfolio.holdings[ticker]; if(!hold || hold.qty<=0){ toast('No holdings to sell'); return; } const sellQty = Math.min(qty, hold.qty); hold.qty -= sellQty; if(hold.qty === 0) delete PROFILE.portfolio.holdings[ticker]; PROFILE.portfolio.cash += sellQty*price; PROFILE.portfolio.history.push({t:nowISO(),action:'SELL',ticker,qty:sellQty,price}); addXP(Math.max(3, Math.round(qty*0.3)),'Trade executed'); toast(`Sold ${sellQty} ${ticker}`); } saveState(); updateHoldingsUI(); drawPortfolioChart(); }
-
-/* ---------- Portfolio UI ---------- */
+/* Portfolio */
 let portfolioChart = null;
-function renderPortfolio(){ const app = document.getElementById('app'); app.innerHTML = `<h2>Your Portfolio</h2><p class="muted">Cash, holdings and analytics.</p><div style="margin-top:12px" class="card"><h3>Holdings</h3><table><thead><tr><th>Artist</th><th>Ticker</th><th>Qty</th><th>Avg</th><th>Last</th><th>Value</th><th>P/L</th><th>Action</th></tr></thead><tbody id="holdingsTbl"></tbody></table><div style="margin-top:12px" class="muted small">Cash: <strong id="cashVal"></strong> • Total Value: <strong id="totalVal"></strong></div></div><div style="margin-top:12px" class="card"><h3>Performance</h3><canvas id="portfolioChart" style="height:220px"></canvas><div id="portfolioMetrics" class="muted small" style="margin-top:8px"></div></div>`; updateHoldingsUI(); drawPortfolioChart(); }
+function renderPortfolio(){
+  const v = document.getElementById('view');
+  v.innerHTML = `
+    <h2>Portfolio</h2>
+    <p class="muted">Your holdings, cash and performance analytics.</p>
+    <div style="margin-top:12px" class="card">
+      <h3>Holdings</h3>
+      <table><thead><tr><th>Artist</th><th>Ticker</th><th>Qty</th><th>Avg</th><th>Last</th><th>Value</th><th>P/L</th><th>Action</th></tr></thead><tbody id="holdingsTbl"></tbody></table>
+      <div class="muted" style="margin-top:10px">Cash: <strong id="cashVal"></strong> • Total: <strong id="totalVal"></strong></div>
+    </div>
+    <div style="margin-top:12px" class="card">
+      <h3>Performance</h3>
+      <canvas id="portfolioChart" style="height:200px"></canvas>
+      <div id="portfolioMetrics" class="muted" style="margin-top:8px"></div>
+    </div>
+  `;
+  updateHoldingsUI();
+  drawPortfolioChart();
+}
+function updateHoldingsUI(){
+  const tbody = document.getElementById('holdingsTbl'); if(!tbody) return; tbody.innerHTML = '';
+  let equity = 0;
+  for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)){
+    const art = ARTISTS.find(a=>a.ticker===t);
+    const last = priceState[t].last;
+    const value = last * h.qty; equity += value;
+    const pl = (last - h.avg) * h.qty;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${art.name}</td><td>${t}</td><td>${h.qty}</td><td>${h.avg.toFixed(2)}</td><td>${last.toFixed(2)}</td><td>${value.toFixed(2)}</td><td style="color:${pl>=0? '#2dd4bf':'#ff6b6b'}">${pl>=0?'+':''}${pl.toFixed(2)}</td><td><button class="btn ghost" data-sell="${t}">Sell</button></td>`;
+    tbody.appendChild(tr);
+  }
+  tbody.querySelectorAll('[data-sell]').forEach(b=> b.addEventListener('click', e=> openTradeModal('SELL', e.currentTarget.dataset.sell)));
+  const total = equity + PROFILE.portfolio.cash;
+  $('#cashVal').textContent = fmt(PROFILE.portfolio.cash); $('#totalVal').textContent = fmt(total);
+  updateSnapshot();
+  saveProfile();
+}
+function getPortfolioSeries(){
+  const len = 60; const series = [];
+  for(let i=0;i<len;i++){
+    let tot = 0;
+    for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)){
+      const hist = priceState[t].history; const idx = Math.max(0, hist.length - len + i);
+      tot += (hist[idx] || hist[0] || 100) * h.qty;
+    }
+    series.push(tot + PROFILE.portfolio.cash);
+  }
+  return series;
+}
+function drawPortfolioChart(){
+  const canvas = document.getElementById('portfolioChart'); if(!canvas) return;
+  const series = getPortfolioSeries();
+  if(portfolioChart) portfolioChart.destroy();
+  portfolioChart = new Chart(canvas.getContext('2d'), { type:'line', data:{ labels: series.map((_,i)=>i), datasets:[{ data: series, borderColor:'#6c5cff', backgroundColor: hexToRgba('#6c5cff',.12), fill:true }]}, options:{plugins:{legend:{display:false}}, scales:{x:{display:false}}} });
+  const metrics = computeMetrics(series);
+  document.getElementById('portfolioMetrics').textContent = `Ann Return: ${(metrics.annual_return*100).toFixed(2)}% • Vol: ${(metrics.volatility_ann*100).toFixed(2)}% • Sharpe: ${metrics.sharpe.toFixed(2)}`;
+}
 
-function updateHoldingsUI(){ const tbody=document.getElementById('holdingsTbl'); if(!tbody) return; tbody.innerHTML=''; let equity=0; for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)){ const art = ARTISTS.find(a=>a.ticker===t); const last=priceState[t].last; const value = last*h.qty; equity += value; const pl = (last-h.avg)*h.qty; const tr = el('tr'); tr.innerHTML = `<td>${art.name}</td><td>${t}</td><td>${h.qty}</td><td>${h.avg.toFixed(2)}</td><td>${last.toFixed(2)}</td><td>${value.toFixed(2)}</td><td style="color:${pl>=0? '#2dd4bf':'#ff6b6b'}">${pl>=0?'+':''}${pl.toFixed(2)}</td><td><button class="btn ghost" data-sell="${t}">Sell</button></td>`; tbody.appendChild(tr); } tbody.querySelectorAll('[data-sell]').forEach(b=> b.addEventListener('click', e=> openTradeModal('SELL', e.currentTarget.dataset.sell))); const total = PROFILE.portfolio.cash + equity; document.getElementById('cashVal').textContent = fmt(PROFILE.portfolio.cash); document.getElementById('totalVal').textContent = fmt(total); saveState(); updateSnapshot(); updateLeaderboardWithYou(total); }
-
-function getPortfolioSeries(){ const len=60; const series=[]; for(let i=0;i<len;i++){ let tot=0; for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)){ const hist = priceState[t].history; const idx = Math.max(0, hist.length - len + i); tot += (hist[idx] || hist[0] || 100) * h.qty; } series.push(tot + PROFILE.portfolio.cash); } return series; }
-
-function drawPortfolioChart(){ const canvas = document.getElementById('portfolioChart'); if(!canvas) return; const series=getPortfolioSeries(); if(portfolioChart) portfolioChart.destroy(); portfolioChart = new Chart(canvas.getContext('2d'), { type:'line', data:{ labels: series.map((_,i)=>i), datasets:[{ data: series, borderColor:'#6c5cff', backgroundColor: hexToRgba('#6c5cff',.12), fill:true }]}, options:{plugins:{legend:{display:false}}, scales:{x:{display:false}}} }); const metrics = computeMetrics(series); document.getElementById('portfolioMetrics').innerHTML = `Ann Return: ${(metrics.annual_return*100).toFixed(2)}% • Vol(ann): ${(metrics.volatility_ann*100).toFixed(2)}% • Sharpe: ${metrics.sharpe.toFixed(2)}`; }
-
-/* ---------- Leaderboard ---------- */
+/* Leaderboard */
 let LEADERBOARD = [ {user:'Keita',value:32200},{user:'Aisha',value:27140},{user:'Tunde',value:19870},{user:'You',value:0} ];
-function updateLeaderboardWithYou(total){ LEADERBOARD[3]={user:'You',value:Math.round(total)}; if(currentRoute==='leaderboard') renderLeaderboard(); }
-function renderLeaderboard(){ const app=document.getElementById('app'); app.innerHTML = `<h2>Leaderboard</h2><p class="muted">Top community portfolios</p><div style="margin-top:12px;display:grid;gap:10px" id="lbGrid"></div>`; const grid=document.getElementById('lbGrid'); LEADERBOARD.sort((a,b)=>b.value-a.value); grid.innerHTML=''; LEADERBOARD.forEach((p,i)=> grid.appendChild(el('div',{class:'card'},`<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${i+1}. ${p.user}</strong><div class="muted small">Value</div></div><div style="font-weight:800">${fmt(p.value)}</div></div>`))); }
+function renderLeaderboard(){
+  const v = document.getElementById('view'); v.innerHTML = `<h2>Leaderboard</h2><p class="muted">Top community portfolios</p><div style="margin-top:12px" id="lbGrid"></div>`;
+  const grid = document.getElementById('lbGrid'); LEADERBOARD.sort((a,b)=>b.value-a.value); grid.innerHTML = '';
+  LEADERBOARD.forEach((p,i)=> {
+    const div = document.createElement('div'); div.className = 'card';
+    div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${i+1}. ${p.user}</strong><div class="muted small">Portfolio value</div></div><div style="font-weight:800">${fmt(p.value)}</div></div>`;
+    grid.appendChild(div);
+  });
+}
 
-/* ---------- Gallery ---------- */
-function renderGallery(){ const app=document.getElementById('app'); app.innerHTML = `<h2>Gallery</h2><p class="muted">Posters and cover art. Click to enlarge.</p><div style="margin-top:12px" class="card"><div class="gallery" id="posterGallery"></div></div>`; const g = document.getElementById('posterGallery'); ARTISTS.forEach(a=>{ const p = el('div',{class:'poster'}); p.innerHTML = `<img src="${a.poster}" alt="${a.name} poster">`; p.addEventListener('click', ()=> openLightbox(a.poster)); g.appendChild(p); }); }
-function openLightbox(src){ $('#lightboxImg').src = src; $('#lightbox').style.display='grid'; $('#lightbox').setAttribute('aria-hidden','false'); }
-$('#lightbox') && $('#lightbox').addEventListener('click', ()=> { $('#lightbox').style.display='none'; $('#lightbox').setAttribute('aria-hidden','true'); });
+/* Gallery */
+function renderGallery(){
+  const v = document.getElementById('view');
+  v.innerHTML = `<h2>Gallery</h2><p class="muted">Posters & covers — click to enlarge.</p><div style="margin-top:12px" class="card"><div class="gallery" id="posterGallery"></div></div>`;
+  const g = document.getElementById('posterGallery');
+  ARTISTS.forEach(a=> {
+    const p = el('div', { class:'poster' }); p.innerHTML = `<img src="${a.poster}" alt="${a.name} poster" />`; p.addEventListener('click', ()=> openLightbox(a.poster)); g.appendChild(p);
+  });
+}
+function openLightbox(src){ $('#lightboxImg').src = src; $('#lightbox').style.display = 'grid'; $('#lightbox').setAttribute('aria-hidden','false'); }
+$('#lightbox') && $('#lightbox').addEventListener('click', ()=> { $('#lightbox').style.display = 'none'; $('#lightbox').setAttribute('aria-hidden','true'); });
 
-/* ---------- Quests ---------- */
-const QUESTS = [ {id:'first_trade',title:'Make your first trade',xp:30,desc:'Make any buy or sell'}, {id:'diversify',title:'Hold 3 artists',xp:50,desc:'Hold at least 3 different artists'}, {id:'daily_checkin',title:'Daily Check-in',xp:15,desc:'Open the app for 7 consecutive days'} ];
-function renderQuests(){ const app=document.getElementById('app'); app.innerHTML = `<h2>Quests</h2><p class="muted">Complete quests to earn XP and badges.</p><div style="margin-top:12px" id="questsList" class="grid-cards"></div>`; const ul=document.getElementById('questsList'); ul.innerHTML=''; QUESTS.forEach(q=>{ const done = PROFILE.questsCompleted.includes(q.id); const card = el('div',{class:'card'}); card.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${q.title}</strong><div class="muted small">${q.desc}</div></div><div>${done?'<span style="color:#2dd4bf">✓ Completed</span>':`<button class="btn ghost" data-q="${q.id}">Complete</button>`}</div></div>`; ul.appendChild(card); if(!done) card.querySelector('[data-q]').addEventListener('click', ()=> attemptQuest(q.id)); }); }
-function attemptQuest(id){ if(id==='first_trade'){ if(PROFILE.portfolio.history.length>0) completeQuest(id); else toast('Make a trade to complete this quest'); } else if(id==='diversify'){ if(Object.keys(PROFILE.portfolio.holdings).length>=3) completeQuest(id); else toast('Hold at least 3 different artists'); } else if(id==='daily_checkin'){ PROFILE.streak = (PROFILE.streak||0)+1; if(PROFILE.streak>=7){ completeQuest(id); PROFILE.streak=0; } else toast(`Check-in recorded. Current streak: ${PROFILE.streak}`); saveState(); } }
-function completeQuest(id){ if(PROFILE.questsCompleted.includes(id)) return; PROFILE.questsCompleted.push(id); const q = QUESTS.find(x=>x.id===id); addXP(q.xp,'Quest: '+q.title); PROFILE.achievements['quest_'+id] = { at: nowISO() }; toast(`Quest completed: ${q.title} • +${q.xp} XP`); saveState(); renderQuests(); }
+/* Insights (AI Summaries via serverless) */
+function renderInsights(){
+  const v = document.getElementById('view');
+  v.innerHTML = `<h2>AI Insights</h2><p class="muted">Paste news or artist notes and generate a concise AI summary (serverless).</p><div style="margin-top:12px" class="card"><textarea id="aiText" rows="6" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#fff"></textarea><div class="controls" style="margin-top:8px"><button id="genAI" class="btn">Generate (Server)</button><button id="genLocal" class="btn ghost">Local</button></div><div id="aiOut" class="muted" style="margin-top:8px"></div></div>`;
+  document.getElementById('genAI').addEventListener('click', async ()=> {
+    const txt = document.getElementById('aiText').value.trim(); if(!txt){ toast('Paste text first'); return; }
+    const out = document.getElementById('aiOut'); out.textContent = 'Generating…';
+    try{ const s = await summarize(txt); out.innerHTML = s.replace(/\n/g,'<br/>'); }catch(err){ out.textContent = 'AI error: '+err.message; }
+  });
+  document.getElementById('genLocal').addEventListener('click', ()=> { const t=document.getElementById('aiText').value.trim(); document.getElementById('aiOut').innerHTML = localSummarize(t).replace(/\n/g,'<br/>'); });
+}
 
-/* ---------- Insights (Gemini serverless) ---------- */
-async function renderInsights(){ const app=document.getElementById('app'); app.innerHTML = `<h2>AI Insights</h2><p class="muted">Paste a news snippet or artist note and generate a concise summary & trading insight (Gemini via serverless).</p><div style="margin-top:12px" class="card"><textarea id="aiText" rows="6" style="width:100%;background:transparent;border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:10px;color:#fff"></textarea><div class="controls" style="margin-top:8px"><button id="genAI" class="btn">Generate (Gemini)</button><button id="genLocal" class="btn ghost">Local (offline)</button></div><div id="aiOut" class="muted small" style="margin-top:8px"></div></div>`; document.getElementById('genAI').addEventListener('click', async ()=>{ const txt = document.getElementById('aiText').value.trim(); if(!txt){ toast('Paste text first'); return; } const out=document.getElementById('aiOut'); out.textContent='Generating…'; try{ const summary = await summarize(txt); out.innerHTML = summary.replace(/\n/g,'<br/>'); }catch(err){ out.textContent = 'Error: '+err.message; } }); document.getElementById('genLocal').addEventListener('click', ()=> { const t=document.getElementById('aiText').value.trim(); document.getElementById('aiOut').innerHTML = localSummarize(t).replace(/\n/g,'<br/>'); }); }
+/* ---------- Trade modal ---------- */
+function openTradeModal(side='BUY', ticker=null){
+  const view = document.getElementById('view');
+  const modal = el('div', { class:'card' });
+  modal.style.marginBottom = '12px';
+  modal.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><h3>${side} ${ticker||''}</h3><div class="muted small">Quick trade</div></div><div><button class="btn ghost close">Close</button></div></div><div style="margin-top:12px" class="controls"><select id="trTicker" class="input">${ARTISTS.map(a=>`<option value="${a.ticker}">${a.ticker} — ${a.name}</option>`).join('')}</select><input id="trQty" type="number" min="1" value="1" class="input" style="width:100px"/><button id="trConfirm" class="btn">${side}</button></div><div id="trPreview" class="muted small" style="margin-top:8px"></div>`;
+  view.prepend(modal);
+  if(ticker) modal.querySelector('#trTicker').value = ticker;
+  modal.querySelector('.close').addEventListener('click', ()=> modal.remove());
+  const updatePreview = ()=>{ const t=modal.querySelector('#trTicker').value; const q=Math.max(1, Math.floor(Number(modal.querySelector('#trQty').value)||1)); const price=priceState[t].last; modal.querySelector('#trPreview').innerHTML = `Price: <strong>${price.toFixed(2)}</strong> • Total: <strong>${(price*q).toFixed(2)}</strong>`; };
+  modal.querySelector('#trTicker').addEventListener('change', updatePreview);
+  modal.querySelector('#trQty').addEventListener('input', updatePreview);
+  updatePreview();
+  modal.querySelector('#trConfirm').addEventListener('click', ()=> { const t=modal.querySelector('#trTicker').value; const q=Math.max(1, Math.floor(Number(modal.querySelector('#trQty').value)||1)); executeTrade(side, t, q); modal.remove(); });
+}
 
-/* ---------- Summarizer (serverless Gemini) ---------- */
-async function summarize(text){ if(!APP_CONFIG.SERVER_SUMMARIZE_URL) return localSummarize(text); const res = await fetch(APP_CONFIG.SERVER_SUMMARIZE_URL, { method:'POST', headers:{ 'Content-Type':'application/json', 'x-client-key': APP_CONFIG.CLIENT_KEY }, body: JSON.stringify({ text }) }); if(!res.ok){ const t = await res.text(); throw new Error('Summarizer failed: '+(t||res.status)); } const j = await res.json(); return j.summary || j.result || j.output || ''; }
-function localSummarize(text){ if(!text) return ''; const s = text.split(/[.?!]\s+/).filter(Boolean); if(s.length<=2) return text; const first = s[0]; const sorted = [...s].sort((a,b)=>b.length-a.length); return `${first}.\n\n• ${sorted[0]}.\n\n• ${sorted[1]}.`; }
+/* ---------- Execute trade ---------- */
+function executeTrade(side,ticker,qty){
+  const price = priceState[ticker].last;
+  if(side === 'BUY'){
+    const cost = price * qty;
+    if(cost > PROFILE.portfolio.cash){ toast('Insufficient cash'); return; }
+    const hold = PROFILE.portfolio.holdings[ticker] || { qty:0, avg:0 };
+    const newQty = hold.qty + qty;
+    const newAvg = ((hold.avg*hold.qty) + price*qty) / (newQty || 1);
+    PROFILE.portfolio.holdings[ticker] = { qty: newQty, avg: newAvg };
+    PROFILE.portfolio.cash -= cost;
+    PROFILE.portfolio.history.push({ t: nowISO(), action:'BUY', ticker, qty, price });
+    PROFILE.xp = (PROFILE.xp||0) + Math.max(5, Math.round(qty*0.5));
+    toast(`Bought ${qty} ${ticker}`);
+  } else {
+    const hold = PROFILE.portfolio.holdings[ticker];
+    if(!hold || hold.qty <= 0){ toast('Nothing to sell'); return; }
+    const sellQty = Math.min(qty, hold.qty);
+    hold.qty -= sellQty;
+    if(hold.qty === 0) delete PROFILE.portfolio.holdings[ticker];
+    PROFILE.portfolio.cash += sellQty * price;
+    PROFILE.portfolio.history.push({ t: nowISO(), action:'SELL', ticker, qty: sellQty, price });
+    PROFILE.xp = (PROFILE.xp||0) + Math.max(3, Math.round(qty*0.3));
+    toast(`Sold ${sellQty} ${ticker}`);
+  }
+  saveProfile(); updateHoldingsUI(); drawPortfolioChart(); updateProfileUI();
+}
 
-/* ---------- Predictions & metrics ---------- */
-function computeMetrics(series){ if(!series||series.length<2) return {annual_return:0,volatility_ann:0,sharpe:0}; const rets=[]; for(let i=1;i<series.length;i++) rets.push((series[i]-series[i-1])/series[i-1]); const mean=rets.reduce((a,b)=>a+b,0)/rets.length; const variance = rets.reduce((a,b)=>a+(b-mean)*(b-mean),0)/(Math.max(1,rets.length-1)); const sd=Math.sqrt(variance); const volAnn = sd*Math.sqrt(252); const ann = mean*252; const sharpe = volAnn>0 ? ann/volAnn : 0; return { annual_return: ann, volatility_ann: volAnn, sharpe }; }
-function predictTrend(series){ const n=series.length; if(n<6) return { next: series[n-1], direction:'flat', confidence:0.2 }; let sumX=0,sumY=0,sumXY=0,sumXX=0; for(let i=0;i<n;i++){ sumX+=i; sumY+=series[i]; sumXY+=i*series[i]; sumXX+=i*i; } const b=(n*sumXY - sumX*sumY)/(n*sumXX - sumX*sumX); const a=(sumY - b*sumX)/n; const next=a+b*n; let ssRes=0, ssTot=0; const mean=sumY/n; for(let i=0;i<n;i++){ const p=a+b*i; ssRes+=(series[i]-p)*(series[i]-p); ssTot+=(series[i]-mean)*(series[i]-mean); } const r2 = ssTot===0?0:Math.max(0,1-(ssRes/ssTot)); return { next, direction: b>0.001?'up':(b<-0.001?'down':'flat'), confidence: Math.min(0.98, Math.max(0.05, r2)) }; }
+/* ---------- Spot / Sketchfab ---------- */
+function getTopArtist(){ let best=null, bestScore=-Infinity; ARTISTS.forEach(a=>{ const s=priceState[a.ticker]; const score = s.last * (1 + s.popularity/100); if(score > bestScore){ bestScore = score; best = a; } }); return best; }
+function updateSpotlight(){
+  const area = document.getElementById('spot3d');
+  const top = getTopArtist();
+  const frame = document.getElementById('sketchframe');
+  if(frame) frame.src = top.sketch || '';
+}
 
-/* ---------- Export PDF ---------- */
-async function exportPDF(){ const { jsPDF } = window.jspdf; const doc = new jsPDF({ unit:'pt', format:'a4' }); doc.setFontSize(16); doc.text("AfroGenstas — Portfolio Report", 40, 60); doc.setFontSize(11); doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 80); doc.text(`User: ${PROFILE.user}`, 40, 96); doc.text(`Cash: ${fmt(PROFILE.portfolio.cash)}`, 40, 112); let y=140; doc.text("Holdings:",40,y); y+=14; for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)){ const last=priceState[t].last; doc.text(`${t} • Qty: ${h.qty} • Avg: ${h.avg.toFixed(2)} • Last: ${last.toFixed(2)} • Value: ${(last*h.qty).toFixed(2)}`, 48, y); y+=12; if(y>720){ doc.addPage(); y=40; } } doc.save(`afrogenstas-report-${Date.now()}.pdf`); }
+/* ---------- Artist quick open ---------- */
+function openArtist(ticker){ // open a small artist page
+  const artist = ARTISTS.find(a=>a.ticker===ticker);
+  if(!artist) return;
+  currentRoute = 'market';
+  document.querySelectorAll('nav button').forEach(b=> b.classList.toggle('active', b.dataset.route === 'market'));
+  const v = document.getElementById('view');
+  const s = priceState[ticker];
+  v.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div><h2>${artist.name} <small class="muted">${artist.ticker}</small></h2><div class="muted small">Last ${s.last.toFixed(2)} • Pop ${s.popularity.toFixed(1)}</div></div>
+      <div><button id="backBtn" class="btn ghost">Back</button></div>
+    </div>
+    <div style="margin-top:12px" class="card">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="flex:1"><canvas id="artistChart" style="height:180px"></canvas></div>
+        <div style="width:260px">
+          <div style="height:160px;border-radius:10px;overflow:hidden"><img src="${artist.cover}" style="width:100%;height:100%;object-fit:cover" alt="${artist.name} cover" /></div>
+          <div style="margin-top:8px" class="controls"><button id="tradeNow" class="btn">Trade</button><button id="summarizeBtn" class="btn ghost">Summarize</button></div>
+          <div id="artistInfo" class="muted" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('backBtn').addEventListener('click', ()=> renderMarket());
+  document.getElementById('tradeNow').addEventListener('click', ()=> openTradeModal('BUY', artist.ticker));
+  document.getElementById('summarizeBtn').addEventListener('click', async ()=>{
+    const info = document.getElementById('artistInfo'); info.textContent = 'Generating…';
+    try{ const summary = await summarize(`${artist.name} latest update: price ${s.last}, popularity ${s.popularity}`); info.innerHTML = summary.replace(/\n/g,'<br/>'); }catch(err){ info.textContent = 'Summary failed: '+err.message; }
+  });
+  // chart
+  const ctx = document.getElementById('artistChart').getContext('2d');
+  const series = s.history.slice(-120);
+  new Chart(ctx, { type:'line', data:{ labels: series.map((_,i)=>i), datasets:[{ data: series, borderColor: artist.color, backgroundColor: hexToRgba(artist.color,.12), fill:true, tension:0.28 }]}, options:{plugins:{legend:{display:false}}, scales:{x:{display:false}}} });
+}
 
-/* ---------- PWA (runtime manifest + service worker) ---------- */
-async function registerRuntimeServiceWorker(){ if(!('serviceWorker' in navigator)) return; const swCode = `const CACHE_NAME='afrogenstas-cache-v1'; self.addEventListener('install',(e)=>{self.skipWaiting();}); self.addEventListener('activate',(e)=>{self.clients.claim();}); self.addEventListener('fetch', (e)=>{ if(e.request.method !== 'GET') return; e.respondWith(fetch(e.request).catch(()=>caches.match(e.request).then(r=> r || caches.match('/index.html')))); });`; try{ const blob = new Blob([swCode], { type: 'text/javascript' }); const swUrl = URL.createObjectURL(blob); await navigator.serviceWorker.register(swUrl); console.log('SW registered'); }catch(e){ console.warn('SW failed', e); } }
-function createRuntimeManifest(){ const manifest={ name:'AfroGenstas', short_name:'AfroGenstas', start_url:'.', display:'standalone', background_color:'#04050a', theme_color:'#7C5CFF', icons:[{src:'https://api.dicebear.com/6.x/shapes/svg?seed=afrogenstas',sizes:'192x192',type:'image/svg+xml'},{src:'https://api.dicebear.com/6.x/shapes/svg?seed=afrogenstas',sizes:'512x512',type:'image/svg+xml'}] }; const blob = new Blob([JSON.stringify(manifest)], { type:'application/json' }); const url = URL.createObjectURL(blob); let link = document.querySelector('link[rel="manifest"]'); if(!link){ link = document.createElement('link'); link.rel='manifest'; document.head.appendChild(link); } link.href = url; }
+/* ---------- Metrics & prediction ---------- */
+function computeMetrics(series){
+  if(!series || series.length < 2) return { annual_return:0, volatility_ann:0, sharpe:0 };
+  const rets=[]; for(let i=1;i<series.length;i++) rets.push((series[i]-series[i-1])/series[i-1]);
+  const mean = rets.reduce((a,b)=>a+b,0)/rets.length;
+  const variance = rets.reduce((a,b)=>a+(b-mean)*(b-mean),0)/(Math.max(1,rets.length-1));
+  const sd=Math.sqrt(variance); const volAnn = sd*Math.sqrt(252); const ann=mean*252; const sharpe = volAnn>0? ann/volAnn : 0;
+  return { annual_return: ann, volatility_ann: volAnn, sharpe };
+}
+function predictTrend(series){
+  const n=series.length; if(n<6) return { next: series[n-1], direction:'flat', confidence:0.2 };
+  let sumX=0,sumY=0,sumXY=0,sumXX=0;
+  for(let i=0;i<n;i++){ sumX+=i; sumY+=series[i]; sumXY+=i*series[i]; sumXX+=i*i; }
+  const b = (n*sumXY - sumX*sumY) / (n*sumXX - sumX*sumX); const a = (sumY - b*sumX)/n; const next = a + b*n;
+  let ssRes=0, ssTot=0; const mean=sumY/n;
+  for(let i=0;i<n;i++){ const p=a+b*i; ssRes+=(series[i]-p)*(series[i]-p); ssTot+=(series[i]-mean)*(series[i]-mean); }
+  const r2 = ssTot===0?0:Math.max(0,1-(ssRes/ssTot)); return { next, direction: b>0.001?'up':(b<-0.001?'down':'flat'), confidence: Math.min(0.98, Math.max(0.05, r2)) };
+}
+
+/* ---------- Summarizer (serverless hook) ---------- */
+async function summarize(text){
+  if(!APP_CONFIG.SERVER_SUMMARIZE_URL) return localSummarize(text);
+  const res = await fetch(APP_CONFIG.SERVER_SUMMARIZE_URL, { method:'POST', headers:{ 'Content-Type':'application/json', 'x-client-key': APP_CONFIG.CLIENT_KEY }, body: JSON.stringify({ text }) });
+  if(!res.ok){ const t=await res.text(); throw new Error('Summarize failed: '+(t||res.status)); }
+  const j = await res.json();
+  return j.summary || j.result || j.output || '';
+}
+function localSummarize(text){
+  if(!text) return '';
+  const s = text.split(/[.?!]\s+/).filter(Boolean);
+  if(s.length<=2) return text;
+  const first = s[0]; const sorted = [...s].sort((a,b)=>b.length - a.length);
+  return `${first}. \n\n• ${sorted[0]}. \n\n• ${sorted[1]}.`;
+}
+
+/* ---------- PDF export ---------- */
+async function exportPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'a4' });
+  doc.setFontSize(16); doc.text("AfroGenstas — Portfolio Report", 40, 60);
+  doc.setFontSize(11); doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 80);
+  doc.text(`User: ${PROFILE.user}`, 40, 96); doc.text(`Cash: ${fmt(PROFILE.portfolio.cash)}`, 40, 112);
+  let y=140; doc.text("Holdings:", 40, y); y+=14;
+  for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)){
+    const last = priceState[t].last;
+    doc.text(`${t} • Qty: ${h.qty} • Avg: ${h.avg.toFixed(2)} • Last: ${last.toFixed(2)} • Value: ${(last*h.qty).toFixed(2)}`, 48, y);
+    y += 12; if(y > 720){ doc.addPage(); y = 40; }
+  }
+  doc.save(`afrogenstas-portfolio-${Date.now()}.pdf`);
+}
+
+/* ---------- Small utilities ---------- */
+function fmt(v){ return '$' + Number(v).toLocaleString(undefined, { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+
+/* ---------- Snapshot & UI updates ---------- */
+function updateSnapshot(){
+  let equity = 0;
+  for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)) equity += priceState[t].last * h.qty;
+  const total = PROFILE.portfolio.cash + equity;
+  // side snapshot (if exists)
+  const snap = document.getElementById('snapshot');
+  if(snap) snap.innerHTML = `<strong>${fmt(total)}</strong><div class="muted small">Cash ${fmt(PROFILE.portfolio.cash)} • Equity ${fmt(equity)}</div>`;
+  updateLeaderboardWithYou(total);
+}
+function updateProfileUI(){ $('#userName').textContent = PROFILE.user || 'Guest'; $('#userMeta').textContent = `Lv ${PROFILE.level} • XP ${PROFILE.xp||0}`; saveProfile(); }
+
+/* ---------- Leaderboard update ---------- */
+function updateLeaderboardWithYou(total){ LEADERBOARD[3] = { user:'You', value: Math.round(total) }; if(currentRoute === 'leaderboard') renderLeaderboard(); }
 
 /* ---------- 3D background accent ---------- */
-function init3DBackground(){ const canvas = document.getElementById('bgCanvas'); if(!canvas) return; const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true }); const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000); camera.position.set(0,0,60); const geom = new THREE.TorusKnotGeometry(14,1.4,160,20); const mat = new THREE.MeshBasicMaterial({ color: 0x7c5cff, wireframe:true, transparent:true, opacity:0.06 }); const knot = new THREE.Mesh(geom, mat); scene.add(knot); const count = 600; const pos = new Float32Array(count*3); for(let i=0;i<count;i++){ pos[i*3+0]=(Math.random()-0.5)*300; pos[i*3+1]=(Math.random()-0.5)*120; pos[i*3+2]=(Math.random()-0.5)*300; } const particles = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color:0x00e5ff, size:0.4, transparent:true, opacity:0.12 })); particles.geometry.setAttribute('position', new THREE.BufferAttribute(pos,3)); scene.add(particles); function resize(){ renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); } addEventListener('resize', resize); resize(); let t=0; (function loop(){ t+=0.004; knot.rotation.x = t*0.6; knot.rotation.y = t*0.35; particles.rotation.y = -t*0.03; renderer.render(scene, camera); requestAnimationFrame(loop); })(); }
+function init3D(){
+  const canvas = document.getElementById('bg3d');
+  if(!canvas) return;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
+  camera.position.set(0,0,60);
+  const geom = new THREE.TorusKnotGeometry(14,1.4,160,20);
+  const mat = new THREE.MeshBasicMaterial({ color: 0x7c5cff, wireframe:true, transparent:true, opacity:0.06 });
+  const knot = new THREE.Mesh(geom, mat); scene.add(knot);
+  const cnt = 400; const pos = new Float32Array(cnt*3);
+  for(let i=0;i<cnt;i++){ pos[i*3+0]=(Math.random()-0.5)*300; pos[i*3+1]=(Math.random()-0.5)*120; pos[i*3+2]=(Math.random()-0.5)*300; }
+  const particles = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color:0x00e5ff, size:0.45, transparent:true, opacity:0.12 }));
+  particles.geometry.setAttribute('position', new THREE.BufferAttribute(pos,3)); scene.add(particles);
+  function resize(){ renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); }
+  addEventListener('resize', resize); resize();
+  let t=0; (function loop(){ t+=0.004; knot.rotation.x = t*0.6; knot.rotation.y = t*0.35; particles.rotation.y = -t*0.03; renderer.render(scene, camera); requestAnimationFrame(loop); })();
+}
 
-/* ---------- Small helpers ---------- */
-function localSummarize(text){ if(!text) return ''; const s = text.split(/[.?!]\s+/).filter(Boolean); if(s.length<=2) return text; const first = s[0]; const sorted=[...s].sort((a,b)=>b.length-a.length); return `${first}.\n\n• ${sorted[0]}.\n\n• ${sorted[1]}.`; }
-function computeMetrics(series){ if(!series||series.length<2)return{annual_return:0,volatility_ann:0,sharpe:0}; const rets=[]; for(let i=1;i<series.length;i++) rets.push((series[i]-series[i-1])/series[i-1]); const mean=rets.reduce((a,b)=>a+b,0)/rets.length; const variance = rets.reduce((a,b)=>a+(b-mean)*(b-mean),0)/(Math.max(1,rets.length-1)); const sd=Math.sqrt(variance); const volAnn=sd*Math.sqrt(252); const ann=mean*252; const sharpe=volAnn>0?ann/volAnn:0; return { annual_return: ann, volatility_ann: volAnn, sharpe }; }
-
-/* ---------- Boot ---------- */
-async function boot(){ initNav(); createRuntimeManifest(); await registerRuntimeServiceWorker(); initPrices(); updateProfileUI(); navToStart(); document.getElementById('btnExport').addEventListener('click', exportPDF); setTimeout(()=>{ renderTicker(); updateSnapshot(); }, 600); }
-function navToStart(){ const r = location.hash.replace('#','') || 'market'; document.querySelectorAll('nav button').forEach(b=> b.classList.toggle('active', b.dataset.route===r)); currentRoute=r; if(ROUTES[r]) ROUTES[r](); else ROUTES.market(); }
-function updateSnapshot(){ const el = document.getElementById('snapshot'); if(!el) return; let equity=0; for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)) equity += priceState[t].last * h.qty; const total = PROFILE.portfolio.cash + equity; if(el) el.innerHTML = `<div><strong>${fmt(total)}</strong></div><div class="muted small">Cash ${fmt(PROFILE.portfolio.cash)} • Equity ${fmt(equity)}</div>`; updateLeaderboardWithYou(total); }
-
-/* ---------- Start ---------- */
+/* ---------- Init & boot ---------- */
+function navigate(route){ document.querySelectorAll('nav button').forEach(b=> b.classList.toggle('active', b.dataset.route===route)); currentRoute = route; history.pushState({route}, '', '#'+route); if(ROUTES[route]) ROUTES[route](); else ROUTES['home'](); }
+async function boot(){
+  initNav(); createManifest(); await registerRuntimeSW(); init3D(); initPrices(); updateProfileUI();
+  // wire global buttons
+  document.getElementById('btnExport').addEventListener('click', exportPDF);
+  $('#btnInstall') && $('#btnInstall').addEventListener('click', ()=> { if(deferredPrompt) deferredPrompt.prompt(); else toast('Install not available'); });
+  // go to route or home
+  const route = location.hash.replace('#','') || 'home'; document.querySelectorAll('nav button').forEach(b=> b.classList.toggle('active', b.dataset.route===route)); if(ROUTES[route]) ROUTES[route](); else ROUTES.home();
+  setTimeout(()=> { renderTicker(); updateSnapshot(); updateSpotlight(); }, 600);
+}
 boot();
 
-/* ---------- Expose a few dev helpers (console) ---------- */
-window.__AG = { PROFILE, priceState, ARTISTS, APP_CONFIG };
+/* ---------- small helpers exposed ---------- */
+window.Afrogenstas = { PROFILE, priceState, ARTISTS, APP_CONFIG };
+
+/* ---------- tiny formatting helpers ---------- */
+function updateTickerUI(){ renderTicker(); }
+function renderTicker(){
+  const el = document.getElementById('ticker'); if(!el) return; el.innerHTML = '';
+  ARTISTS.forEach(a=>{ const s = priceState[a.ticker]; const prev = s.history[s.history.length-2] || s.last; const pct = ((s.last - prev)/prev)*100; const d = elCreate('div','tick'); d.innerHTML = `<div><strong>${a.ticker}</strong><div class="muted small">${a.name}</div></div><div style="text-align:right"><div style="font-weight:800">${s.last.toFixed(2)}</div><div class="muted small">${pct>=0?'+':''}${pct.toFixed(2)}%</div></div>`; el.appendChild(d); });
+}
+function elCreate(tag, cls){ const e=document.createElement(tag); if(cls) e.className = cls; return e; }
+function fmt(v){ return '$' + Number(v).toLocaleString(undefined, { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+
+/* ---------- local summarizer fallback ---------- */
+function localSummarize(text){ if(!text) return ''; const s = text.split(/[.?!]\s+/).filter(Boolean); if(s.length<=2) return text; const first=s[0]; const sorted=[...s].sort((a,b)=>b.length-a.length); return `${first}.\n\n• ${sorted[0]}.\n\n• ${sorted[1]}.`; }
+
+/* ---------- UI helpers ---------- */
+function updateProfileUI(){ $('#userName').textContent = PROFILE.user || 'Guest'; $('#userMeta').textContent = `Lv ${PROFILE.level} • XP ${PROFILE.xp||0}`; saveProfile(); }
+
+/* ---------- small protective wrappers ---------- */
+function saveProfile(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(PROFILE)); }catch(e){ console.warn('save failed', e); } }
+function updateSnapshot(){} // placeholder (already defined earlier) - no-op to keep function ordering
 
 </script>
 </body>
