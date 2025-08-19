@@ -1,635 +1,688 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="AfroGenstas: Trade Afrobeat artist tokens in a crypto-inspired music market!">
-  <meta name="theme-color" content="#FF6B00">
-  <meta property="og:title" content="AfroGenstas">
-  <meta property="og:image" content="https://example.com/afrogenstas-og.jpg">
-  <title>AfroGenstas</title>
-  <!-- Inline CSS (Minified) -->
-  <style>
-    :root{--primary:#FF6B00;--secondary:#00FFD1;--accent:#FF2E97;--bg:#07060A;--surface:#0E0E12;--muted:#B3B3B3;--glass:rgba(255,255,255,0.03);--radius:12px;--maxW:1200px;--shadow:0 8px 32px rgba(2,6,23,0.6);--transition:240ms cubic-bezier(.2,.9,.2,1);--success:#2dd4bf;--danger:#ff6b6b}
-    *{box-sizing:border-box}html,body{height:100%;margin:0;background:radial-gradient(900px 400px at 8% 8%, rgba(124,92,255,0.035), transparent),var(--bg);color:#fff;font-family:'Poppins',system-ui;-webkit-font-smoothing:antialiased}
-    a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}:focus{outline:2px solid var(--primary);outline-offset:2px}
-    header{position:sticky;top:0;z-index:120;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;backdrop-filter:blur(8px);background:linear-gradient(180deg,rgba(3,4,8,0.6),rgba(3,4,8,0.25));border-bottom:1px solid rgba(255,255,255,0.03);box-shadow:0 2px 8px rgba(0,0,0,0.2)}
-    .brand{display:flex;gap:12px;align-items:center}.logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--accent));display:grid;place-items:center;font-weight:800;font-family:'Orbitron',sans-serif}
-    nav{display:flex;gap:10px;align-items:center}nav button{background:transparent;border:none;color:var(--muted);padding:8px 10px;border-radius:10px;font-weight:700;font-size:14px}
-    nav button:hover{color:#fff;background:linear-gradient(90deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));transform:translateY(-1px)}
-    main{max-width:var(--maxW);margin:14px auto;padding:12px;display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:1000px){main{grid-template-columns:720px 1fr}}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.008));border-radius:var(--radius);padding:14px;border:1px solid rgba(255,255,255,0.03);box-shadow:var(--shadow);transition:transform var(--transition)}
-    .card:hover{transform:translateY(-4px);box-shadow:0 14px 46px rgba(2,6,23,0.72)}
-    h1{font-family:'Orbitron',sans-serif;font-size:28px}h2{font-size:20px;font-weight:700}.muted{color:var(--muted);font-size:14px}
-    .ticker{display:flex;gap:10px;overflow-x:auto;padding:10px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.005));scroll-snap-type:x mandatory}
-    .tick{min-width:150px;padding:10px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);scroll-snap-align:start}
-    .grid-cards{display:grid;gap:12px}@media(min-width:680px){.grid-cards{grid-template-columns:repeat(2,1fr)}}@media(min-width:1000px){.grid-cards{grid-template-columns:repeat(3,1fr)}}
-    .table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.03)}.table th{color:var(--primary);font-weight:700}
-    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.input{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#fff}
-    .btn{background:linear-gradient(90deg,var(--secondary),var(--primary));border:none;padding:10px 14px;border-radius:12px;color:#021;font-weight:800}
-    .btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,107,0,0.3)}.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
-    .poster{width:120px;height:120px;border-radius:12px;overflow:hidden}.poster img{width:100%;height:100%;object-fit:cover}
-    .three-wrap{width:100%;height:260px;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.005))}
-    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.82);display:none;place-items:center}.lightbox.show{display:grid}
-    .bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;display:flex;gap:10px;background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:8px;border-radius:999px}
-    .nav-item{width:56px;height:56px;border-radius:14px;display:grid;place-items:center}.nav-item.active{transform:translateY(-6px)}
-    .toast{position:fixed;right:18px;bottom:110px;background:linear-gradient(90deg,var(--secondary),var(--primary));padding:10px 14px;border-radius:12px;color:#021;font-weight:800;opacity:0;transform:translateY(10px);transition:all 300ms}.toast.show{opacity:1;transform:translateY(0)}
-    @media (max-width:520px){.nav-item{width:48px;height:48px}header{padding:10px}.logo{width:40px;height:40px}main{padding:8px;gap:8px}}
-  </style>
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AfroGenstas — Demo (MVP + WalletConnect + Soft Wallet)</title>
+<meta name="description" content="AfroGenstas demo: simulated Afrobeat artist market, soft wallet, WalletConnect, staking pools, leaderboards, charts, 3D demo, and PWA support.">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><circle cx=%2232%22 cy=%2232%22 r=%2228%22 fill=%22%236E00FF%22/></svg>">
+<!-- Inline critical styles (theme tokens) -->
+<style>
+:root{
+  --bg:#0B1020; --surface:#0f1424; --muted:#A8B0C2; --text:#E6E9F2;
+  --primary:#6E00FF; --accent:#FF2E9F; --gold:#FFC700; --teal:#00C2A8;
+  --glass: rgba(255,255,255,0.04); --radius:12px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;color:var(--text);background:
+radial-gradient(900px 400px at 10% -10%, rgba(110,0,255,0.18), transparent 40%),
+radial-gradient(700px 300px at 110% 40%, rgba(255,46,159,0.08), transparent 40%),var(--bg);}
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;position:sticky;top:0;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.03)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .mark{width:44px;height:44px;border-radius:999px;background:linear-gradient(135deg,var(--gold),var(--accent));box-shadow:0 6px 20px rgba(0,0,0,0.4);display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+.brand h1{font-size:18px;margin:0;color:var(--text)}
+.controls{display:flex;gap:8px;align-items:center}
+.btn{background:var(--primary);color:#fff;padding:8px 12px;border-radius:999px;border:0;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.45)}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+.container{width:min(1100px,94vw);margin:20px auto}
+.grid{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
+.panel{background:var(--glass);padding:16px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.04)}
+.market-list{display:grid;gap:10px}
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center}
+.ticker{font-weight:700;color:var(--gold)}
+.small{color:var(--muted);font-size:13px}
+.footer{padding:24px;text-align:center;color:var(--muted)}
+.switch{display:inline-flex;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
+.switch button{background:transparent;border:0;padding:8px 10px;color:var(--text);cursor:pointer}
+.switch button.active{background:var(--primary);color:#fff}
+.h1{font-size:28px;margin:4px 0}
+.lead{color:var(--muted);margin:6px 0 12px}
+.smallmuted{color:var(--muted);font-size:12px}
+.controls .pill{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:999px;font-size:13px}
+.legend{display:flex;gap:8px;flex-wrap:wrap}
+.branding-explain{font-size:13px;color:var(--muted);margin-top:6px}
+kbd{background:#0b0f1a;border-radius:6px;padding:2px 6px;border:1px solid rgba(255,255,255,0.03);font-family:monospace}
+.leaderboard{display:flex;flex-direction:column;gap:8px}
+.lb-item{display:flex;justify-content:space-between;align-items:center;padding:6px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+.badge{background:var(--teal);padding:4px 8px;border-radius:999px;color:#042; font-weight:700}
+.center{display:flex;align-items:center;justify-content:center}
+.small-note{font-size:12px;color:var(--muted)}
+.canvas-wrap{height:220px}
+@media (max-width:900px){ .grid{grid-template-columns:1fr} .container{padding-bottom:60px} }
+</style>
 </head>
 <body>
-  <!-- 3D Background -->
-  <canvas id="bgCanvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.45"></canvas>
-
-  <header>
-    <div class="brand">
-      <div class="logo" aria-hidden>AG</div>
-      <div><div class="header-title">AfroGenstas</div><div class="header-sub">Music • Crypto • Culture</div></div>
+  <header class="header" role="banner">
+    <div class="brand" aria-hidden="false">
+      <div class="mark" title="AfroGenstas">AG</div>
+      <div>
+        <h1>AfroGenstas</h1>
+        <div class="smallmuted">Stake · Trade · Celebrate Afrobeat Stars</div>
+      </div>
     </div>
-    <nav id="topNav" aria-label="Main navigation">
-      <button data-route="home" class="active">Home</button>
-      <button data-route="market">Market</button>
-      <button data-route="portfolio">Portfolio</button>
-      <button data-route="leagues">Leagues</button>
-      <button data-route="insights">AI Insights</button>
-      <button data-route="gallery">3D Gallery</button>
-      <button data-route="newsroom">Newsroom</button>
-    </nav>
+
+    <div class="controls" role="navigation" aria-label="Top controls">
+      <div class="pill smallmuted">Simulation only</div>
+      <div class="switch" role="tablist" aria-label="Theme">
+        <button id="btnNeon" class="active" aria-pressed="true">Neon</button>
+        <button id="btnContrast">Contrast</button>
+      </div>
+      <button id="btnEdit" class="btn ghost">Edit Content</button>
+      <button id="btnInstall" class="btn">Install PWA</button>
+    </div>
   </header>
 
-  <main>
-    <section id="app" class="card" aria-live="polite"></section>
-    <aside>
-      <div class="card">
-        <h3>Live Ticker</h3>
-        <div id="ticker" class="ticker muted"></div>
-      </div>
-      <div class="card" style="margin-top:12px">
-        <h3>Profile</h3>
-        <div style="display:flex;gap:12px;align-items:center">
-          <div style="width:62px;height:62px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--accent));display:grid;place-items:center;font-weight:800;font-family:'Orbitron',sans-serif">U</div>
-          <div><div id="userName" style="font-weight:700">Guest</div><div id="userMeta" class="small muted">Lv 1 • XP 0</div></div>
+  <main class="container" role="main">
+    <section class="grid" aria-live="polite">
+      <!-- MAIN COLUMN -->
+      <div>
+        <!-- HERO -->
+        <div class="panel" role="region" aria-label="Hero">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div class="h1">Play the Market. Feel the Rhythm.</div>
+              <div class="lead">Draft Davido or Ayra Starr — build a portfolio, stake in Hype Pools, and generate AI insights. Simulation only.</div>
+            </div>
+            <div class="center" style="flex-direction:column;gap:8px">
+              <button id="btnStart" class="btn">Start Trading</button>
+              <div class="smallmuted">Avg session target: 8+ minutes</div>
+            </div>
+          </div>
         </div>
-        <div style="margin-top:10px" class="controls">
-          <button id="btnPremium" class="btn">Go Premium</button>
-          <button id="btnExport" class="btn ghost">Export PDF</button>
+
+        <!-- MARKET -->
+        <div class="panel" style="margin-top:12px" role="region" aria-label="Market">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <strong>Artist Market</strong>
+            <div class="legend smallmuted">
+              <span class="smallmuted">Volatility legend</span>
+              <span class="badge">High</span>
+            </div>
+          </div>
+
+          <div id="marketList" class="market-list" aria-live="polite"></div>
         </div>
-      </div>
-      <div class="card" style="margin-top:12px">
-        <h3>Top Artist 3D</h3>
-        <div id="spot3d" class="three-wrap">
-          <canvas id="3dCanvas"></canvas>
+
+        <!-- CHART & PORTFOLIO -->
+        <div class="panel" style="margin-top:12px" role="region" aria-label="Charts & Portfolio">
+          <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
+            <strong id="selectedLabel">Select an artist</strong>
+            <div><span class="smallmuted">Portfolio Value:</span> <strong id="portfolioValue">₳ 0</strong></div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:8px;align-items:center">
+            <div style="flex:1" class="canvas-wrap">
+              <canvas id="priceChart"></canvas>
+            </div>
+            <div style="width:220px">
+              <div class="smallmuted">Actions</div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+                <button id="buyBtn" class="btn">Buy 10</button>
+                <button id="sellBtn" class="btn ghost">Sell 10</button>
+                <button id="stakeBtn" class="btn">Stake in Pool</button>
+                <button id="claimBtn" class="btn ghost">Claim Rewards</button>
+              </div>
+              <div style="margin-top:12px" class="small-note">Prices simulated via volatility engine (browser). Social sentiment = mocked.</div>
+            </div>
+          </div>
         </div>
-        <div class="muted small" style="margin-top:8px">Interactive artist visual</div>
+
+        <!-- 3D STAGE (Simple demo) -->
+        <div class="panel" style="margin-top:12px" role="region" aria-label="3D Stage">
+          <strong>3D Stage (demo)</strong>
+          <div id="threeWrap" style="height:240px;margin-top:8px;border-radius:10px;overflow:hidden;background:#05060a" aria-hidden="false"></div>
+          <div class="smallmuted" style="margin-top:8px">Tap to toggle orbit animation. Low-poly demo — heavy models are lazy-loaded in prod.</div>
+        </div>
+
       </div>
-      <div class="card" style="margin-top:12px">
-        <h3>Staking Pool</h3>
-        <div id="stakingPool" class="grid-cards"></div>
+
+      <!-- RIGHT COLUMN -->
+      <aside style="width:340px">
+        <!-- WALLETS -->
+        <div class="panel" role="region" aria-label="Wallet">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>Wallet</strong>
+            <div class="smallmuted">Soft wallet + WalletConnect</div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button id="softWalletBtn" class="btn">Create Soft Wallet</button>
+            <button id="connectBtn" class="btn ghost">Connect Wallet</button>
+          </div>
+          <div id="walletInfo" style="margin-top:12px" class="smallmuted">No wallet yet</div>
+        </div>
+
+        <!-- EARN & REWARDS -->
+        <div class="panel" style="margin-top:12px" role="region" aria-label="Rewards">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>AfroPoints</strong>
+            <div class="smallmuted">Earn & redeem</div>
+          </div>
+          <div style="margin-top:8px">
+            <div id="pointsBal" style="font-size:18px;font-weight:700">0 AFRO</div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button id="earnBtn" class="btn">Earn +10</button>
+              <button id="redeemBtn" class="btn ghost">Redeem</button>
+            </div>
+            <div class="smallmuted" style="margin-top:8px">Points stored locally. Later: redeem for perks or off-chain drops.</div>
+          </div>
+        </div>
+
+        <!-- STAKING POOL -->
+        <div class="panel" style="margin-top:12px" role="region" aria-label="Staking">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>Hype Pools</strong>
+            <div class="smallmuted">Dynamic APR</div>
+          </div>
+          <div id="pools" style="margin-top:8px"></div>
+          <div class="smallmuted" style="margin-top:8px">Stake tokens to earn AfroPoints. APR adjusts to hype & volatility.</div>
+        </div>
+
+        <!-- LEADERBOARD -->
+        <div class="panel" style="margin-top:12px" role="region" aria-label="Leaderboard">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>Weekly Leaderboard</strong>
+            <div class="smallmuted">Top fans</div>
+          </div>
+          <div id="leaderboard" style="margin-top:8px" class="leaderboard"></div>
+          <div style="display:flex;gap:8px;margin-top:8px"><button id="shareBtn" class="btn">Share</button><button id="joinLeague" class="btn ghost">Join League</button></div>
+        </div>
+
+      </aside>
+    </section>
+
+    <section style="margin-top:18px" class="panel" role="region" aria-label="AI Insights">
+      <strong>Gemini AI Insights (Demo)</strong>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+        <button id="aiGenBtn" class="btn">Generate Insight (Lite)</button>
+        <button id="aiDeepBtn" class="btn ghost">Deep Research (Pro)</button>
+        <div class="smallmuted">Batched & cached to save calls</div>
       </div>
-    </aside>
+      <div id="aiOutput" style="margin-top:12px" class="smallmuted">No insights yet.</div>
+    </section>
+
   </main>
 
-  <footer>© 2025 AfroGenstas | <a href="#">Terms</a> | <a href="#">Privacy</a></footer>
+  <footer class="footer">
+    <div class="smallmuted">AfroGenstas Demo • Simulation only. No real money trading. Built for demo & prototype purposes.</div>
+  </footer>
 
-  <!-- Lightbox -->
-  <div id="lightbox" class="lightbox" aria-hidden="true" role="dialog">
-    <img id="lightboxImg" alt="Artwork" />
-  </div>
+<!-- Third-party libs are lazy-loaded to reduce initial payload -->
+<script>
+/* -----------------------------
+   Utility & State bootstrap
+   ----------------------------- */
+const STATE = {
+  artists: [],      // {ticker,name,price,vol,history[]}
+  portfolio: {},    // ticker -> qty
+  softWallet: null, // {privateKey,address,points}
+  web3Provider: null,
+  web3Signer: null,
+  leaderboard: [],  // [{name,points}]
+  pools: [],        // {id,artist,apr,staked}
+  selected: null,
+  aiCache: {}       // key -> {ts,content}
+};
 
-  <!-- Dependencies (CDNs) -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.27/dist/interact.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai@0.12.0/dist/index.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
+const ARTISTS = [
+  ["$WIZK","Wizkid","med"],
+  ["$TEM","Tems","low"],
+  ["$BURNA","Burna Boy","high"],
+  ["$AYRA","Ayra Starr","med"],
+  ["$REMA","Rema","med"],
+  ["$DAVI","Davido","high"],
+  ["$ASAK","Asake","med"],
+  ["$TIWA","Tiwa Savage","low"],
+  ["$CKAY","CKay","med"],
+  ["$JOE","Joeboy","low"],
+  ["$KIZZ","Kizz Daniel","med"],
+  ["$OMAH","Omah Lay","med"],
+  ["$YEMI","Yemi Alade","low"],
+  ["$MRPS","Mr Eazi","low"],
+  ["$TAYO","Tayo","med"],
+  ["$ZINO","Zinoleesky","high"],
+  ["$LYTA","Lyta","low"],
+  ["$BLAQ","Blaqbonez","med"],
+  ["$NYA","Nyashinski","low"],
+  ["$FIRE","Fireboy","med"]
+];
 
-  <!-- Inline JavaScript -->
-  <script>
-    (() => {
-      'use strict';
+/* Basic RNG helpers */
+const rand = (a,b)=> a + Math.random()*(b-a);
+const clamp = (v,a,b)=> Math.max(a,Math.min(b,v));
+const now = ()=>Date.now();
 
-      // Config
-      const CONFIG = {
-        GEMINI_API_KEY: 'YOUR_GEMINI_API_KEY', // Replace with Google AI Studio key
-        VERSION: '2.0.0',
-        PREMIUM: false
-      };
+/* Storage helpers */
+function saveLS(){ localStorage.setItem('afro_state', JSON.stringify({portfolio:STATE.portfolio,softWallet:STATE.softWallet,leaderboard:STATE.leaderboard,pools:STATE.pools})); }
+function loadLS(){
+  try{
+    const raw = localStorage.getItem('afro_state');
+    if(raw){ const parsed=JSON.parse(raw); STATE.portfolio=parsed.portfolio||{}; STATE.softWallet=parsed.softWallet||null; STATE.leaderboard=parsed.leaderboard||[]; STATE.pools=parsed.pools||[]; }
+  }catch(e){}
+}
 
-      // Data
-      const ARTISTS = [
-        { ticker:'$BURNA', name:'Burna Boy', color:'#FF6B00', poster:'https://example.com/burna.jpg', model:'https://example.com/burna.gltf' },
-        { ticker:'$WIZK', name:'Wizkid', color:'#6C5CFF', poster:'https://example.com/wizkid.jpg', model:'https://example.com/wizkid.gltf' },
-        { ticker:'$TEM', name:'Tems', color:'#00FFD1', poster:'https://example.com/tems.jpg', model:'https://example.com/tems.gltf' },
-        { ticker:'$ASAK', name:'Asake', color:'#FF2E97', poster:'https://example.com/asake.jpg', model:'https://example.com/asake.gltf' },
-        { ticker:'$AYRA', name:'Ayra Starr', color:'#FFD700', poster:'https://example.com/ayra.jpg', model:'https://example.com/ayra.gltf' },
-        { ticker:'$REMA', name:'Rema', color:'#00CED1', poster:'https://example.com/rema.jpg', model:'https://example.com/rema.gltf' },
-        { ticker:'$FIRE', name:'Fireboy DML', color:'#FF4500', poster:'https://example.com/fireboy.jpg', model:'https://example.com/fireboy.gltf' },
-        { ticker:'$OMAH', name:'Omah Lay', color:'#8A2BE2', poster:'https://example.com/omah.jpg', model:'https://example.com/omah.gltf' },
-        { ticker:'$YEMI', name:'Yemi Alade', color:'#FF69B4', poster:'https://example.com/yemi.jpg', model:'https://example.com/yemi.gltf' },
-        { ticker:'$TIWA', name:'Tiwa Savage', color:'#20B2AA', poster:'https://example.com/tiwa.jpg', model:'https://example.com/tiwa.gltf' },
-        { ticker:'$MRPS', name:'Mr P', color:'#FF6347', poster:'https://example.com/mrp.jpg', model:'https://example.com/mrp.gltf' },
-        { ticker:'$TAYO', name:'Tay Iwar', color:'#4682B4', poster:'https://example.com/tayo.jpg', model:'https://example.com/tayo.gltf' },
-        { ticker:'$KIZZ', name:'Kizz Daniel', color:'#FF8C00', poster:'https://example.com/kizz.jpg', model:'https://example.com/kizz.gltf' },
-        { ticker:'$JOEBOY', name:'Joeboy', color:'#00FF7F', poster:'https://example.com/joeboy.jpg', model:'https://example.com/joeboy.gltf' },
-        { ticker:'$CKAY', name:'CKay', color:'#DC143C', poster:'https://example.com/ckay.jpg', model:'https://example.com/ckay.gltf' },
-        { ticker:'$ZINO', name:'Zinoleesky', color:'#9932CC', poster:'https://example.com/zino.jpg', model:'https://example.com/zino.gltf' },
-        { ticker:'$LYTA', name:'Lyta', color:'#FFA500', poster:'https://example.com/lyta.jpg', model:'https://example.com/lyta.gltf' },
-        { ticker:'$BLAQBONEZ', name:'Blaqbonez', color:'#00FA9A', poster:'https://example.com/blaqbonez.jpg', model:'https://example.com/blaqbonez.gltf' },
-        { ticker:'$NYASHINSKI', name:'Nyashinski', color:'#FF00FF', poster:'https://example.com/nyashinski.jpg', model:'https://example.com/nyashinski.gltf' },
-        { ticker:'$DAVI', name:'Davido', color:'#1E90FF', poster:'https://example.com/davido.jpg', model:'https://example.com/davido.gltf' }
-      ];
+/* Init artists with simulated base prices and vol */
+function initArtists(){
+  STATE.artists = ARTISTS.map(([ticker,name,vol])=>{
+    const volMap = {low:0.015, med:0.03, high:0.07};
+    const price = Math.round(rand(50,1200)); // base price units (simulation)
+    return {ticker,name,price,volatility:volMap[vol],history:[{t:now(),p:price}],sentiment:0};
+  });
+  // create 3 pools for demo
+  STATE.pools = [
+    {id:"pool-1",artist:STATE.artists[0].ticker,staked:0,apr:8},
+    {id:"pool-2",artist:STATE.artists[2].ticker,staked:0,apr:12},
+    {id:"pool-3",artist:STATE.artists[4].ticker,staked:0,apr:6}
+  ];
+  saveLS();
+}
 
-      const FUTURES = [
-        { name:'AfroFire Track', roi:18, confidence:85, countdown:7, invested:false },
-        { name:'Naija Vibes Beat', roi:22, confidence:78, countdown:14, invested:false },
-        { name:'Lagos Groove Song', roi:15, confidence:82, countdown:5, invested:false }
-      ];
+/* -----------------------------
+   Price sim engine (GBM + shock)
+   - runs on interval; updates history
+   ----------------------------- */
+function stepPriceSim(){
+  const dt = 1/24; // time-step (days)
+  STATE.artists.forEach(a=>{
+    // Brownian increment
+    const mu = 0; // drift
+    const sigma = a.volatility;
+    const S = a.price;
+    // Normal approx by Box–Muller
+    const u1 = Math.random(), u2=Math.random();
+    const z = Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);
+    const dS = S * (mu*dt + sigma*Math.sqrt(dt)*z);
+    // sentiment shock occasionally
+    let shock = 0;
+    if(Math.random() < 0.03){ // 3% chance per tick
+      const mag = rand(-0.2,0.4); // -20% to +40%
+      shock = S * mag;
+    }
+    let newP = Math.max(1, Math.round(S + dS + shock));
+    // mean reversion: pull towards 300-ish
+    newP = Math.round(newP - 0.002*(newP-300));
+    a.price = newP;
+    a.history.push({t:now(),p:newP});
+    // trim history
+    if(a.history.length > 300) a.history.shift();
+  });
+  renderMarket();
+  updateChart(); // update selected chart if any
+  updatePoolsAPR();
+}
 
-      const MACRO_DATA = {
-        globalStreams: '6.1B',
-        marketShare: { Spotify: 38, YouTube: 22, AppleMusic: 18, Others: 22 },
-        topRegion: 'Nigeria: 65%',
-        emergingGenre: 'Afro-Fusion: +30%'
-      };
+/* -----------------------------
+   UI Renderers
+   ----------------------------- */
+function renderMarket(){
+  const el = document.getElementById('marketList');
+  el.innerHTML = '';
+  STATE.artists.forEach(a=>{
+    const div = document.createElement('div');
+    div.className='card';
+    div.innerHTML = `<div>
+      <div class="ticker">${a.ticker}</div>
+      <div class="small">${a.name} • vol ${(a.volatility*100).toFixed(1)}%</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-weight:800">₳ ${a.price}</div>
+      <div style="margin-top:6px;display:flex;gap:6px;justify-content:flex-end">
+        <button class="btn ghost" data-t="${a.ticker}" data-act="view">View</button>
+        <button class="btn" data-t="${a.ticker}" data-act="buy">Buy</button>
+      </div>
+    </div>`;
+    el.appendChild(div);
+  });
+  // attach listeners
+  document.querySelectorAll('[data-act]').forEach(btn=>{
+    btn.onclick = (e)=>{
+      const t = e.currentTarget.getAttribute('data-t');
+      const act = e.currentTarget.getAttribute('data-act');
+      const a = STATE.artists.find(x=>x.ticker===t);
+      if(act==='view'){ selectArtist(a.ticker); }
+      if(act==='buy'){ buyArtist(a.ticker,10); }
+    };
+  });
+}
 
-      // State
-      const LS_KEY = 'afrogenstas_v2';
-      function defaultProfile(){ return { user:'Guest', xp:0, level:1, portfolio:{ cash:20000, holdings:{}, futures:[], staked:[] }, premium:false }; }
-      let PROFILE = loadProfile();
-      let currentRoute = 'home';
-      const priceState = {};
+/* Chart.js wrapper (lazy load Chart.js) */
+let CHART = null;
+async function ensureChart(){
+  if(window.Chart) return;
+  await loadScript('https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js');
+}
+async function updateChart(){
+  const sel = STATE.selected;
+  const ctx = document.getElementById('priceChart').getContext('2d');
+  if(!sel) { ctx.canvas.style.opacity=0.3; return; }
+  await ensureChart();
+  const a = STATE.artists.find(x=>x.ticker===sel);
+  const labels = a.history.map(h=>new Date(h.t).toLocaleTimeString());
+  const data = a.history.map(h=>h.p);
+  if(CHART){ CHART.data.labels = labels; CHART.data.datasets[0].data = data; CHART.update(); return; }
+  CHART = new Chart(ctx,{type:'line',data:{labels,datasets:[{label:a.ticker,data,fill:true,tension:0.25,borderColor:'#6E00FF',backgroundColor:'rgba(110,0,255,0.12)'}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false}}}});
+}
 
-      // Helpers
-      const $ = s => document.querySelector(s);
-      const $$ = s => Array.from(document.querySelectorAll(s));
-      function saveProfile(){ localStorage.setItem(LS_KEY, JSON.stringify(PROFILE)); }
-      function loadProfile(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || defaultProfile(); }catch(e){ return defaultProfile(); } }
-      function toast(msg, t=2200){ const el = document.createElement('div'); el.className='toast'; el.textContent=msg; document.body.appendChild(el); requestAnimationFrame(()=>{el.classList.add('show');}); setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(),350); }, t); }
-      function fmt(n){ return '$' + Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
-      function premiumCheck(feature){ if(!PROFILE.premium){ toast('Premium feature - Subscribe now!'); return false; } return true; }
+/* Select artist */
+function selectArtist(ticker){
+  STATE.selected = ticker;
+  document.getElementById('selectedLabel').innerText = ticker;
+  updateChart();
+}
 
-      // OpenBB Price Simulation
-      function initPrices(){
-        ARTISTS.forEach(a => {
-          const base = 50 + Math.random()*200;
-          priceState[a.ticker] = { history: Array.from({length:100}, (_,i)=>Math.round((base + Math.sin(i/5)*8 + Math.random()*10)*100)/100), last: Math.round(base*100)/100, popularity: 40 + Math.random()*60, sentiment: 0.5 };
-        });
-        scheduleTick();
-      }
+/* Portfolio ops (simulated) */
+function portfolioValue(){
+  let total = 0;
+  Object.keys(STATE.portfolio).forEach(t=>{
+    const qty = STATE.portfolio[t];
+    const a = STATE.artists.find(x=>x.ticker===t);
+    if(a) total += qty * a.price;
+  });
+  return Math.round(total);
+}
+function buyArtist(ticker,qty){
+  STATE.portfolio[ticker] = (STATE.portfolio[ticker]||0)+qty;
+  saveLS();
+  document.getElementById('portfolioValue').innerText = `₳ ${portfolioValue()}`;
+  // small reward
+  givePoints(2);
+  alert(`Bought ${qty} of ${ticker} in simulation.`);
+}
+function sellArtist(ticker,qty){
+  const cur = STATE.portfolio[ticker]||0;
+  const sold = Math.min(cur,qty);
+  STATE.portfolio[ticker] = cur - sold;
+  if(STATE.portfolio[ticker] <= 0) delete STATE.portfolio[ticker];
+  saveLS();
+  document.getElementById('portfolioValue').innerText = `₳ ${portfolioValue()}`;
+  alert(`Sold ${sold} of ${ticker} in simulation.`);
+}
 
-      let tickHandle = null;
-      function scheduleTick(){
-        if(tickHandle) clearTimeout(tickHandle);
-        tickPrices();
-        tickHandle = setTimeout(scheduleTick, 2000 + Math.random()*1000);
-      }
+/* -----------------------------
+   Pools APR adjusts with "hype"
+   ----------------------------- */
+function updatePoolsAPR(){
+  STATE.pools.forEach(p=>{
+    const a = STATE.artists.find(x=>x.ticker===p.artist);
+    // APR base + enthusiasm factor
+    const base = 5 + Math.random()*3;
+    const hype = clamp((Math.log10(a.price+1)-2)*4, -2, 12); // heuristic
+    p.apr = Math.round((base + hype)*10)/10;
+  });
+  renderPools();
+}
+function renderPools(){
+  const el = document.getElementById('pools');
+  el.innerHTML='';
+  STATE.pools.forEach(p=>{
+    const a = STATE.artists.find(x=>x.ticker===p.artist);
+    const div = document.createElement('div'); div.className='card';
+    div.innerHTML = `<div>
+      <div style="font-weight:800">${a.name}</div>
+      <div class="small">Pool • APR ${p.apr}%</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-weight:700">${p.staked} staked</div>
+      <div style="margin-top:8px">
+        <button class="btn" data-p="${p.id}" data-act="stake">Stake 50</button>
+        <button class="btn ghost" data-p="${p.id}" data-act="unstake">Unstake</button>
+      </div>
+    </div>`;
+    el.appendChild(div);
+  });
+  document.querySelectorAll('[data-act]').forEach(b=>{
+    const act = b.getAttribute('data-act');
+    if(act==='stake') b.onclick = ()=>{ stakePool(b.getAttribute('data-p'),50); };
+    if(act==='unstake') b.onclick = ()=>{ unstakePool(b.getAttribute('data-p')); };
+  });
+}
+function stakePool(id,amount){
+  const p = STATE.pools.find(x=>x.id===id);
+  p.staked += amount;
+  givePoints(5);
+  saveLS();
+  updatePoolsAPR();
+  alert(`Staked ${amount} in ${p.artist} pool.`);
+}
+function unstakePool(id){
+  const p = STATE.pools.find(x=>x.id===id);
+  p.staked = Math.max(0,p.staked - 50);
+  saveLS();
+  updatePoolsAPR();
+  alert('Unstaked 50');
+}
 
-      function tickPrices(){
-        ARTISTS.forEach(a => {
-          const s = priceState[a.ticker];
-          const sentimentShift = Math.random() < 0.1 ? (Math.random()-0.5)*0.2 : 0;
-          s.sentiment = Math.max(0, Math.min(1, s.sentiment + sentimentShift));
-          const noise = (Math.random()-0.5) * 0.03 + (s.sentiment - 0.5) / 200;
-          s.last = Math.max(0.5, Math.round((s.last * (1 + noise)) * 100) / 100);
-          s.history.push(s.last);
-          if(s.history.length>600) s.history.shift();
-        });
-        renderTicker();
-        if(currentRoute === 'market' || currentRoute === 'portfolio' || currentRoute === 'leagues') navigate(currentRoute);
-      }
+/* -----------------------------
+   Leaderboard (local)
+   ----------------------------- */
+function givePoints(n){
+  if(!STATE.softWallet){ // if no soft wallet, create one automatically
+    createSoftWallet();
+  }
+  STATE.softWallet.points = (STATE.softWallet.points||0) + n;
+  document.getElementById('pointsBal').innerText = `${STATE.softWallet.points} AFRO`;
+  // update leaderboard: simple entry keyed by address
+  const id = STATE.softWallet.address.slice(0,8);
+  let slot = STATE.leaderboard.find(x=>x.id===id);
+  if(!slot){ slot={id:id,name:`Fan-${id}`,points:0}; STATE.leaderboard.push(slot); }
+  slot.points += n;
+  // sort top-10
+  STATE.leaderboard.sort((a,b)=>b.points-a.points);
+  if(STATE.leaderboard.length>10) STATE.leaderboard.length=10;
+  saveLS();
+  renderLeaderboard();
+}
+function renderLeaderboard(){
+  const el = document.getElementById('leaderboard');
+  el.innerHTML='';
+  STATE.leaderboard.forEach((p,idx)=>{
+    const div = document.createElement('div'); div.className='lb-item';
+    div.innerHTML = `<div>${idx+1}. ${p.name}</div><div style="display:flex;gap:8px;align-items:center"><div class="smallmuted">${p.points} pts</div></div>`;
+    el.appendChild(div);
+  });
+}
 
-      // 3D Background
-      function init3DBackground(){
-        const canvas = $('#bgCanvas');
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-        renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 0.1, 1000);
-        camera.position.set(0,0,70);
+/* -----------------------------
+   Soft Wallet (local-only)
+   ----------------------------- */
+async function createSoftWallet(){
+  // lazy import ethers (already available later) - create random wallet
+  if(!window.ethers){
+    await loadScript('https://cdn.jsdelivr.net/npm/ethers@6.6.0/dist/ethers.umd.min.js');
+  }
+  const wallet = window.ethers.Wallet.createRandom();
+  STATE.softWallet = { privateKey: wallet.privateKey, address: wallet.address, points:0, ts: now() };
+  saveLS();
+  document.getElementById('walletInfo').innerHTML = `<div style="font-size:13px">Soft: <strong class="small">${STATE.softWallet.address}</strong></div>`;
+  document.getElementById('pointsBal').innerText = `0 AFRO`;
+  renderLeaderboard();
+}
 
-        const knotGeo = new THREE.TorusKnotGeometry(12, 1.4, 180, 24);
-        const knotMat = new THREE.MeshStandardMaterial({ color: 0x7c5cff, roughness:0.5, metalness:0.12 });
-        const knot = new THREE.Mesh(knotGeo, knotMat);
-        scene.add(knot);
+/* -----------------------------
+   WalletConnect (external)
+   - For demo we use WalletConnectProvider (v1) via CDN
+   - In production: use WalletConnect v2 + Web3Modal and bundle dependencies
+   ----------------------------- */
+let WC_PROVIDER = null;
+async function connectWallet(){
+  try{
+    if(!window.WalletConnectProvider){
+      await loadScript('https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js');
+    }
+    WC_PROVIDER = new window.WalletConnectProvider.default({ infuraId: 'demo' }); // replace in prod
+    await WC_PROVIDER.enable();
+    // wrap with ethers provider
+    if(!window.ethers) await loadScript('https://cdn.jsdelivr.net/npm/ethers@6.6.0/dist/ethers.umd.min.js');
+    const provider = new ethers.BrowserProvider(WC_PROVIDER);
+    const signer = await provider.getSigner();
+    STATE.web3Provider = provider;
+    STATE.web3Signer = signer;
+    const addr = await signer.getAddress();
+    document.getElementById('walletInfo').innerHTML = `<div style="font-size:13px">Connected: <strong class="small">${addr}</strong></div><div class="smallmuted">WalletConnect</div>`;
+  }catch(e){
+    console.error('connectWallet',e);
+    alert('Failed to connect wallet: ' + (e.message||e));
+  }
+}
 
-        const pCount = 500;
-        const positions = new Float32Array(pCount*3);
-        for(let i=0;i<pCount;i++){ positions[i*3]=(Math.random()-0.5)*400; positions[i*3+1]=(Math.random()-0.5)*120; positions[i*3+2]=(Math.random()-0.5)*400; }
-        const particleGeo = new THREE.BufferGeometry();
-        particleGeo.setAttribute('position', new THREE.BufferAttribute(positions,3));
-        const particleMat = new THREE.PointsMaterial({ color:0x00e5ff, size:0.5, transparent:true, opacity:0.12 });
-        const particles = new THREE.Points(particleGeo, particleMat);
-        scene.add(particles);
+/* Sign a message to verify fan identity */
+async function signFanMessage(){
+  if(!STATE.web3Signer) return alert('Connect a wallet first');
+  try{
+    const addr = await STATE.web3Signer.getAddress();
+    const msg = `I am an AfroGenstas fan — ${addr} — ${Math.floor(now()/1000)}`;
+    const sig = await STATE.web3Signer.signMessage(msg);
+    alert('Signed message (copy):\n' + sig);
+    // Optionally store the signed proof locally; server verify later
+    localStorage.setItem('lastFanProof', JSON.stringify({addr,msg,sig,ts:now()}));
+  }catch(e){ console.error(e); alert('Sign failed'); }
+}
 
-        const amb = new THREE.AmbientLight(0xffffff, 0.12); scene.add(amb);
-        const dir = new THREE.DirectionalLight(0xffffff, 0.18); dir.position.set(50,50,100); scene.add(dir);
+/* -----------------------------
+   AI (Gemini) placeholder
+   - demo: shows how to batch & cache
+   - real integration: send prompts to Gemini API server-side (do not put secrets in client)
+   ----------------------------- */
+async function generateAiInsight(scope='lite'){
+  const cacheKey = `ai:${scope}:summary`;
+  const cached = STATE.aiCache[cacheKey];
+  const TTL = (scope==='lite')? (60*60*24) : (60*60); // lite daily, deep hourly (demo)
+  if(cached && (now() - cached.ts) < TTL*1000){
+    document.getElementById('aiOutput').innerText = `[cached] ` + cached.content;
+    return;
+  }
+  // Demo generation (in real app: call server that forwards to Gemini with billing)
+  const sample = (scope==='lite') ?
+    `Gemini-Lite Summary: Top movers this week: $BURNA, $ZINO. Suggested watch: $TEM for long-term stability.` :
+    `Gemini-Deep: Portfolio backtest suggests a tempo rotation: overweight $BURNA during album cycles, hedge $WIZK with $TEM. Confidence: 72%.`;
+  const out = sample + ` (simulated)`;
+  STATE.aiCache[cacheKey] = {ts: now(), content: out};
+  document.getElementById('aiOutput').innerText = out;
+}
 
-        function resize(){ renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); }
-        resize(); window.addEventListener('resize', resize);
+/* -----------------------------
+   Helper: dynamic script loader
+   ----------------------------- */
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    const s = document.createElement('script'); s.src=src; s.async=true;
+    s.onload = ()=>res(); s.onerror = (e)=>rej(e);
+    document.head.appendChild(s);
+  });
+}
 
-        let t=0;
-        (function loop(){
-          t += 0.006;
-          knot.rotation.y += 0.002;
-          particles.rotation.y = -t*0.02;
-          renderer.render(scene, camera);
-          requestAnimationFrame(loop);
-        })();
-      }
+/* -----------------------------
+   Three.js demo (lazy-loaded)
+   ----------------------------- */
+let THREE_LOADED = false;
+async function initThree(){
+  if(THREE_LOADED) return;
+  await loadScript('https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js');
+  await loadScript('https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js');
+  THREE_LOADED = true;
+  const wrap = document.getElementById('threeWrap');
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, W/H, 0.1, 1000);
+  camera.position.set(0,2,6);
+  const renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(W,H); renderer.setClearColor(0x05060a,1);
+  wrap.appendChild(renderer.domElement);
+  const light = new THREE.PointLight(0xffffff,1); light.position.set(5,5,5); scene.add(light);
+  const geo = new THREE.IcosahedronGeometry(1.4,1);
+  const mat = new THREE.MeshStandardMaterial({color:0x6e00ff,metalness:0.6,roughness:0.2,emissive:0x200040});
+  const orb = new THREE.Mesh(geo,mat); scene.add(orb);
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  let ang = 0;
+  function animate(){ requestAnimationFrame(animate); orb.rotation.y += 0.005; controls.update(); renderer.render(scene,camera); }
+  animate();
+  wrap.onclick = ()=> { orb.rotation.y += 0.6; };
+}
 
-      // 3D Artist Visual
-      let threeScene, threeCamera, threeRenderer;
-      function init3DArtist(){
-        const canvas = $('#3dCanvas');
-        threeRenderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-        threeRenderer.setSize(canvas.clientWidth, 260);
-        threeScene = new THREE.Scene();
-        threeCamera = new THREE.PerspectiveCamera(75, canvas.clientWidth/260, 0.1, 1000);
-        threeCamera.position.z = 5;
+/* -----------------------------
+   PWA install & service worker
+   - registers sw and handles install prompt
+   ----------------------------- */
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('btnInstall').style.display='inline-block';
+});
+document.getElementById('btnInstall').onclick = async ()=>{
+  if(!deferredPrompt) return alert('Install not available');
+  deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
+  if(choice.outcome === 'accepted') alert('App installed!');
+  deferredPrompt = null;
+};
 
-        const geometry = new THREE.SphereGeometry(1, 32, 32);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff88 });
-        const sphere = new THREE.Mesh(geometry, material);
-        threeScene.add(sphere);
+/* Register a basic service worker inline (we will create programmatic SW via blob for single-file demo) */
+async function registerSW(){
+  if('serviceWorker' in navigator){
+    const swCode = `
+    const CACHE = 'afrogenstas-demo-v1';
+    const ASSETS = ['/', location.pathname];
+    self.addEventListener('install', e=>{ e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))); });
+    self.addEventListener('fetch', e=>{ e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))); });
+    `;
+    const blob = new Blob([swCode], {type:'text/javascript'});
+    const url = URL.createObjectURL(blob);
+    try{ await navigator.serviceWorker.register(url); console.log('SW registered'); }catch(e){console.warn('SW failed',e); }
+  }
+}
 
-        const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10,10,10); threeScene.add(light);
-        function animate(){ requestAnimationFrame(animate); sphere.rotation.y += 0.01; threeRenderer.render(threeScene, threeCamera); }
-        animate();
-      }
+/* -----------------------------
+   Wire UI buttons
+   ----------------------------- */
+document.getElementById('softWalletBtn').addEventListener('click', ()=>{ createSoftWallet(); });
+document.getElementById('connectBtn').addEventListener('click', ()=>{ connectWallet(); });
+document.getElementById('earnBtn').addEventListener('click', ()=>{ givePoints(10); });
+document.getElementById('redeemBtn').addEventListener('click', ()=>{ alert('Redeem flow is demo-only — will open in v2.'); });
+document.getElementById('buyBtn').addEventListener('click', ()=>{ if(STATE.selected) buyArtist(STATE.selected,10); else alert('Select an artist first'); });
+document.getElementById('sellBtn').addEventListener('click', ()=>{ if(STATE.selected) sellArtist(STATE.selected,10); else alert('Select an artist first'); });
+document.getElementById('stakeBtn').addEventListener('click', ()=>{ if(STATE.selected){ const pool = STATE.pools[0]; stakePool(pool.id,50);} else alert('Select artist to stake'); });
+document.getElementById('claimBtn').addEventListener('click', ()=>{ alert('Claim rewards demo — in prod this will calculate staking yield.'); });
+document.getElementById('shareBtn').addEventListener('click', ()=>{ try{ navigator.share && navigator.share({title:'My AfroGenstas Score',text:'Check my AfroPoints score!',url:location.href}); }catch(e){ alert('Sharing not supported on this device'); } });
+document.getElementById('joinLeague').addEventListener('click', ()=>{ alert('Joined league (demo).'); });
+document.getElementById('aiGenBtn').addEventListener('click', ()=>{ generateAiInsight('lite'); });
+document.getElementById('aiDeepBtn').addEventListener('click', ()=>{ generateAiInsight('deep'); });
 
-      // Navigation
-      const ROUTES = { home: renderHome, market: renderMarket, portfolio: renderPortfolio, leagues: renderLeagues, insights: renderInsights, gallery: renderGallery, newsroom: renderNewsroom };
-      function initNav(){
-        $$('#topNav button').forEach(b => b.addEventListener('click', e => navigate(e.currentTarget.dataset.route)));
-        $$('.bottom-nav .nav-item').forEach(n => n.addEventListener('click', e => navigate(e.currentTarget.dataset.route)));
-        window.addEventListener('popstate', () => navigate(location.hash.replace('#','') || 'home', true));
-      }
-      function navigate(route, fromPop=false){
-        currentRoute = route || 'home';
-        if(!fromPop) history.pushState({route}, '', '#'+route);
-        (ROUTES[route] || ROUTES.home)();
-      }
+document.getElementById('btnNeon').addEventListener('click', (e)=>{ document.getElementById('btnNeon').classList.add('active'); document.getElementById('btnContrast').classList.remove('active'); document.documentElement.style.setProperty('--bg','#0B1020'); });
+document.getElementById('btnContrast').addEventListener('click', (e)=>{ document.getElementById('btnContrast').classList.add('active'); document.getElementById('btnNeon').classList.remove('active'); document.documentElement.style.setProperty('--bg','#000'); });
 
-      // Renderers
-      function renderHome(){
-        $('#app').innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><h1>AfroGenstas</h1><div class="muted">Trade Afrobeat stars, stake tokens, and predict hits!</div></div>
-            <div class="controls"><button id="openMarket" class="btn">Market</button><button id="openPortfolio" class="btn ghost">Portfolio</button></div>
-          </div>
-          <div style="margin-top:12px" class="card">
-            <h2>Top Artists</h2>
-            <div id="topArtists" class="grid-cards"></div>
-          </div>
-          <div style="margin-top:12px" class="card">
-            <h2>AI Prediction</h2>
-            <div id="aiPrediction" class="muted"></div>
-          </div>
-        `;
-        $('#openMarket').addEventListener('click', () => navigate('market'));
-        $('#openPortfolio').addEventListener('click', () => navigate('portfolio'));
-        const grid = $('#topArtists'); grid.innerHTML = '';
-        ARTISTS.slice(0,6).forEach(a => {
-          const s = priceState[a.ticker];
-          const card = document.createElement('div'); card.className='card';
-          card.innerHTML = `<div style="display:flex;gap:12px">
-            <div style="width:84px;height:84px;border-radius:12px;overflow:hidden"><img src="${a.poster}" alt="${a.name}" loading="lazy"></div>
-            <div style="flex:1">
-              <div style="display:flex;justify-content:space-between"><div><strong>${a.name}</strong><div class="small muted">${a.ticker}</div></div><div style="text-align:right"><div style="font-weight:900">${s.last.toFixed(2)}</div><div class="small muted">Pop ${s.popularity.toFixed(0)}</div></div></div>
-              <div style="margin-top:8px" class="controls"><button class="btn" data-buy="${a.ticker}">Buy</button><button class="btn ghost" data-view="${a.ticker}">View</button></div>
-            </div>
-          </div>`;
-          grid.appendChild(card);
-          card.querySelector('[data-buy]').addEventListener('click', () => openTradeModal('BUY', a.ticker));
-          card.querySelector('[data-view]').addEventListener('click', () => navigate('gallery'));
-        });
-        renderPrediction();
-      }
+document.getElementById('btnStart').addEventListener('click', ()=>{ document.querySelector('main').scrollIntoView({behavior:'smooth'}); });
 
-      let marketChart = null;
-      function renderMarket(){
-        $('#app').innerHTML = `
-          <h2>Artist Market</h2>
-          <div class="muted">Trade and stake Afrobeat tokens</div>
-          <div style="margin-top:12px" class="card">
-            <h3>Artists</h3>
-            <table class="table"><thead><tr><th>Artist</th><th>Ticker</th><th>Price</th><th>Change</th><th>Sentiment</th><th>Action</th></tr></thead><tbody id="marketBody"></tbody></table>
-          </div>
-          <div style="margin-top:12px" class="card">
-            <h3>Price Chart</h3>
-            <canvas id="marketChart" style="height:200px"></canvas>
-            <div style="margin-top:8px" class="controls">
-              <select id="artistSelect" class="input">${ARTISTS.map(a=>`<option value="${a.ticker}">${a.ticker} — ${a.name}</option>`).join('')}</select>
-              <button id="viewSeries" class="btn ghost">Update</button>
-            </div>
-          </div>
-        `;
-        renderMarketBody();
-        $('#viewSeries').addEventListener('click', () => drawMarketChart($('#artistSelect').value));
-        drawMarketChart(ARTISTS[0].ticker);
-      }
+document.getElementById('btnEdit').addEventListener('click', ()=>{
+  const example = JSON.stringify({home:{hero:{heading:'Play the Market. Feel the Rhythm.'}}},null,2);
+  const got = prompt('Paste content JSON to override (demo):', example);
+  if(!got) return;
+  try{ localStorage.setItem('afro_content_override', got); alert('Saved locally — reload to view.'); }catch(e){ alert('Invalid JSON'); }
+});
 
-      function renderMarketBody(){
-        const tbody = $('#marketBody'); tbody.innerHTML = '';
-        ARTISTS.forEach(a => {
-          const s = priceState[a.ticker]; const prev = s.history[s.history.length-2] || s.last; const change = ((s.last - prev)/prev*100).toFixed(2);
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${a.name}</td><td>${a.ticker}</td><td style="font-weight:800">${s.last.toFixed(2)}</td><td style="color:${change>=0?var(--success):var(--danger)}">${change>=0?'+':''}${change}%</td><td>${(s.sentiment*100).toFixed(0)}%</td><td><div class="controls"><button class="btn" data-buy="${a.ticker}">Buy</button><button class="btn ghost" data-stake="${a.ticker}">Stake</button></div></td>`;
-          tbody.appendChild(tr);
-        });
-        tbody.querySelectorAll('[data-buy]').forEach(b => b.addEventListener('click', e => openTradeModal('BUY', e.currentTarget.dataset.buy)));
-        tbody.querySelectorAll('[data-stake]').forEach(b => b.addEventListener('click', e => stakeToken(e.currentTarget.dataset.stake)));
-      }
+/* -----------------------------
+   App bootstrap
+   ----------------------------- */
+loadLS();
+initArtists();
+renderMarket();
+renderPools();
+renderLeaderboard();
+document.getElementById('portfolioValue').innerText = `₳ ${portfolioValue()}`;
+registerSW();
 
-      function drawMarketChart(ticker){
-        const ctx = $('#marketChart').getContext('2d');
-        const s = priceState[ticker]; const series = s.history.slice(-200);
-        if(marketChart) marketChart.destroy();
-        marketChart = new Chart(ctx, {
-          type:'line',
-          data:{ labels: series.map((_,i)=>i), datasets:[{ label: ticker, data: series, borderColor: ARTISTS.find(a=>a.ticker===ticker).color, backgroundColor: 'rgba(255,107,0,0.12)', fill:true, tension:0.28 }]},
-          options:{ plugins:{legend:{display:true}}, scales:{x:{display:false},y:{beginAtZero:false}} }
-        });
-      }
+// start price sim tick
+setInterval(stepPriceSim, 4500); // every 4.5s for demo rapidity
 
-      let portfolioChart = null;
-      function renderPortfolio(){
-        $('#app').innerHTML = `
-          <h2>Portfolio</h2>
-          <div class="muted">Track and stake your holdings</div>
-          <div style="margin-top:12px" class="card">
-            <h3>Holographic Dashboard</h3>
-            <canvas id="holoCanvas" style="height:200px"></canvas>
-          </div>
-          <div style="margin-top:12px" class="card">
-            <h3>Holdings</h3>
-            <table class="table"><thead><tr><th>Artist</th><th>Ticker</th><th>Qty</th><th>Avg Cost</th><th>Value</th><th>P/L</th><th>Action</th></tr></thead><tbody id="holdingsTbl"></tbody></table>
-            <div style="margin-top:10px" class="muted">Cash: <strong id="cashVal"></strong> • Total Equity: <strong id="totalVal"></strong></div>
-          </div>
-        `;
-        updateHoldingsUI();
-        renderHoloDashboard();
-      }
+// lazy load three.js when panel in view
+const ro = new IntersectionObserver((entries)=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){ initThree(); ro.disconnect(); }
+  });
+},{threshold:0.2});
+ro.observe(document.getElementById('threeWrap'));
 
-      function updateHoldingsUI(){
-        const tbody = $('#holdingsTbl'); tbody.innerHTML = '';
-        let equity = 0;
-        for(const [t,h] of Object.entries(PROFILE.portfolio.holdings)){
-          const art = ARTISTS.find(a=>a.ticker===t) || { name: t };
-          const last = priceState[t].last; const value = last * h.qty; equity += value;
-          const pl = (last - h.avg) * h.qty;
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${art.name}</td><td>${t}</td><td>${h.qty}</td><td>${h.avg.toFixed(2)}</td><td>${value.toFixed(2)}</td><td style="color:${pl>=0?var(--success):var(--danger)}">${pl>=0?'+':''}${pl.toFixed(2)}</td><td><button class="btn ghost" data-sell="${t}">Sell</button></td>`;
-          tbody.appendChild(tr);
-        }
-        tbody.querySelectorAll('[data-sell]').forEach(b => b.addEventListener('click', e => openTradeModal('SELL', e.currentTarget.dataset.sell)));
-        $('#cashVal').textContent = fmt(PROFILE.portfolio.cash);
-        $('#totalVal').textContent = fmt(equity + PROFILE.portfolio.cash);
-      }
-
-      function renderHoloDashboard(){
-        const canvas = $('#holoCanvas');
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-        renderer.setSize(canvas.clientWidth, 200);
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth/200, 0.1, 1000);
-        camera.position.z = 5;
-
-        Object.entries(PROFILE.portfolio.holdings).forEach(([t,h],i) => {
-          const geometry = new THREE.SphereGeometry(0.5, 32, 32);
-          const material = new THREE.MeshBasicMaterial({ color: ARTISTS.find(a=>a.ticker===t).color });
-          const orb = new THREE.Mesh(geometry, material);
-          orb.position.x = i * 2 - Object.keys(PROFILE.portfolio.holdings).length;
-          scene.add(orb);
-        });
-
-        const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(10,10,10); scene.add(light);
-        function animate(){ requestAnimationFrame(animate); scene.children.forEach(orb => orb.rotation.y += 0.01); renderer.render(scene, camera); }
-        animate();
-      }
-
-      function renderLeagues(){
-        $('#app').innerHTML = `
-          <h2>Fantasy Leagues</h2>
-          <div class="muted">Compete in global Afrobeat leagues</div>
-          <div style="margin-top:12px" class="card">
-            <h3>Leaderboard</h3>
-            <div id="leaderboard"></div>
-          </div>
-          <div style="margin-top:12px" class="card">
-            <h3>Join League</h3>
-            <button id="joinLeague" class="btn">Draft Now</button>
-          </div>
-        `;
-        const leaderboard = [{ user:'Tunde', value:35000, premium:true }, { user:'Amara', value:28000, premium:false }, { user:'You', value:0, premium:PROFILE.premium }];
-        const lb = $('#leaderboard'); lb.innerHTML = '';
-        leaderboard.forEach((p,i) => {
-          lb.innerHTML += `<div class="card"><div style="display:flex;justify-content:space-between"><div><strong>${i+1}. ${p.user}</strong>${p.premium ? '<span class="small" style="color:var(--primary)"> Premium</span>' : ''}</div><div style="font-weight:900">${fmt(p.value)}</div></div></div>`;
-        });
-        $('#joinLeague').addEventListener('click', () => toast('Joined seasonal league!'));
-      }
-
-      async function renderInsights(){
-        $('#app').innerHTML = `
-          <h2>AI Insights</h2>
-          <div class="muted">Gemini-powered predictions and reports</div>
-          <div style="margin-top:12px" class="card">
-            <textarea id="aiText" rows="6" class="input" placeholder="Enter query (e.g., Predict $TEM performance)"></textarea>
-            <div style="margin-top:8px" class="controls"><button id="genAI" class="btn">Generate</button></div>
-            <div id="aiOut" class="muted"></div>
-          </div>
-        `;
-        $('#genAI').addEventListener('click', async () => {
-          const t = $('#aiText').value.trim(); if(!t) return toast('Enter a query');
-          if(!premiumCheck('AI')) return;
-          $('#aiOut').textContent = 'Generating…';
-          try{ const out = await geminiGenerate(t); $('#aiOut').innerHTML = out.replace(/\n/g,'<br/>'); }catch(e){ $('#aiOut').textContent = 'AI error: ' + e.message; }
-        });
-      }
-
-      function renderGallery(){
-        $('#app').innerHTML = `
-          <h2>3D Gallery</h2>
-          <div class="muted">Explore Afrobeat artist visuals</div>
-          <div style="margin-top:12px" class="card">
-            <div class="grid-cards" id="galleryGrid"></div>
-          </div>
-        `;
-        const g = $('#galleryGrid'); g.innerHTML = '';
-        ARTISTS.forEach(a => {
-          const d = document.createElement('div'); d.className='poster';
-          d.innerHTML = `<img src="${a.poster}" alt="${a.name}" loading="lazy">`;
-          g.appendChild(d); d.addEventListener('click', () => openLightbox(a.poster));
-        });
-      }
-
-      function renderNewsroom(){
-        $('#app').innerHTML = `
-          <h2>Newsroom</h2>
-          <div class="muted">Latest Afrobeat updates</div>
-          <div style="margin-top:12px" class="card">
-            <div id="newsFeed"></div>
-            <button id="genBlog" class="btn">Generate Blogpost</button>
-          </div>
-        `;
-        $('#newsFeed').innerHTML = '<div class="muted">Mock news: Burna Boy announces world tour!</div>';
-        $('#genBlog').addEventListener('click', async () => {
-          if(!premiumCheck('Blog')) return;
-          $('#newsFeed').innerHTML = 'Generating…';
-          try{ const blog = await geminiGenerate('Write a blogpost about recent Afrobeat trends'); $('#newsFeed').innerHTML = blog.replace(/\n/g,'<br/>'); }catch(e){ $('#newsFeed').textContent = 'AI error: ' + e.message; }
-        });
-      }
-
-      // Gemini AI
-      const { GoogleGenerativeAI } = window.google.generativeAI;
-      const genAI = new GoogleGenerativeAI(CONFIG.GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
-
-      async function geminiGenerate(prompt){
-        const result = await model.generateContent(prompt);
-        return await result.response.text();
-      }
-
-      async function renderPrediction(){
-        try{
-          const top = ARTISTS.reduce((a,b) => priceState[a.ticker].sentiment > priceState[b.ticker].sentiment ? a : b);
-          const out = await geminiGenerate(`Predict performance for ${top.name} (${top.ticker}) based on sentiment ${priceState[top.ticker].sentiment}`);
-          $('#aiPrediction').innerHTML = out.replace(/\n/g,'<br/>');
-        }catch(e){ $('#aiPrediction').textContent = 'Prediction unavailable'; }
-      }
-
-      // Trading & Staking
-      function openTradeModal(side, ticker){
-        const modal = document.createElement('div'); modal.className='card'; modal.style.marginBottom='12px';
-        modal.innerHTML = `
-          <div style="display:flex;justify-content:space-between">
-            <div><h3>${side} ${ticker||'Artist'}</h3><div class="small muted">Enter details</div></div>
-            <div><button class="btn ghost close">Close</button></div>
-          </div>
-          <div style="margin-top:12px" class="controls">
-            <select id="trTicker" class="input">${ARTISTS.map(a=>`<option value="${a.ticker}" ${a.ticker===ticker?'selected':''}>${a.ticker} — ${a.name}</option>`).join('')}</select>
-            <input id="trQty" type="number" min="1" value="1" class="input" style="width:110px"/>
-            <button id="trConfirm" class="btn">${side}</button>
-          </div>
-          <div id="trPreview" class="muted small"></div>
-        `;
-        $('#app').prepend(modal);
-        modal.querySelector('.close').addEventListener('click', () => modal.remove());
-        const preview = modal.querySelector('#trPreview');
-        const updatePreview = () => {
-          const t = modal.querySelector('#trTicker').value;
-          const q = Math.max(1, parseInt(modal.querySelector('#trQty').value) || 1);
-          const price = priceState[t].last;
-          preview.innerHTML = `Price: <strong>${price.toFixed(2)}</strong> • Total: <strong>${(price*q).toFixed(2)}</strong>`;
-        };
-        modal.querySelector('#trTicker').addEventListener('change', updatePreview);
-        modal.querySelector('#trQty').addEventListener('input', updatePreview);
-        updatePreview();
-        modal.querySelector('#trConfirm').addEventListener('click', () => {
-          const t = modal.querySelector('#trTicker').value;
-          const q = Math.max(1, parseInt(modal.querySelector('#trQty').value) || 1);
-          executeTrade(side, t, q);
-          modal.remove();
-        });
-      }
-
-      function executeTrade(side, ticker, qty){
-        const price = priceState[ticker].last;
-        if(side === 'BUY'){
-          const cost = price * qty;
-          if(cost > PROFILE.portfolio.cash) return toast('Insufficient cash');
-          const hold = PROFILE.portfolio.holdings[ticker] || { qty:0, avg:0 };
-          const newQty = hold.qty + qty;
-          const newAvg = ((hold.avg*hold.qty) + price*qty) / newQty;
-          PROFILE.portfolio.holdings[ticker] = { qty:newQty, avg:newAvg };
-          PROFILE.portfolio.cash -= cost;
-          PROFILE.xp += Math.round(qty*0.6);
-          toast(`Bought ${qty} ${ticker}`);
-        } else {
-          const hold = PROFILE.portfolio.holdings[ticker];
-          if(!hold || hold.qty < qty) return toast('Insufficient holdings');
-          hold.qty -= qty; if(hold.qty === 0) delete PROFILE.portfolio.holdings[ticker];
-          PROFILE.portfolio.cash += qty * price;
-          PROFILE.xp += Math.round(qty*0.3);
-          toast(`Sold ${qty} ${ticker}`);
-        }
-        saveProfile(); updateHoldingsUI();
-      }
-
-      function stakeToken(ticker){
-        if(!premiumCheck('Stake')) return;
-        const amount = parseInt(prompt('Enter AfroPoints to stake:') || 0);
-        if(amount <= 0 || amount > PROFILE.portfolio.cash) return toast('Invalid amount');
-        PROFILE.portfolio.cash -= amount;
-        PROFILE.portfolio.staked.push({ ticker, amount, apr: priceState[ticker].sentiment * 20 });
-        PROFILE.xp += Math.round(amount/100);
-        toast(`Staked ${amount} AfroPoints on ${ticker}`);
-        saveProfile(); renderStakingPool();
-      }
-
-      function renderStakingPool(){
-        const pool = $('#stakingPool'); pool.innerHTML = '';
-        PROFILE.portfolio.staked.forEach(s => {
-          const card = document.createElement('div'); card.className='card';
-          card.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${s.ticker}</strong><div class="small muted">Staked: ${fmt(s.amount)}</div></div><div>APR: ${s.apr.toFixed(2)}%</div></div>`;
-          pool.appendChild(card);
-        });
-      }
-
-      // PWA
-      let deferredPrompt = null;
-      window.addEventListener('beforeinstallprompt', e => {
-        e.preventDefault(); deferredPrompt = e;
-        toast('Install AfroGenstas for quick access!');
-      });
-
-      // Service Worker
-      async function registerSW(){
-        if('serviceWorker' in navigator){
-          const swCode = `const CACHE='afrogenstas-v2';
-            self.addEventListener('install', e=> self.skipWaiting());
-            self.addEventListener('activate', e=> self.clients.claim());
-            self.addEventListener('fetch', e=> {
-              if(e.request.method !== 'GET') return;
-              e.respondWith(caches.open(CACHE).then(cache => fetch(e.request).then(res => { cache.put(e.request, res.clone()); return res; }).catch(() => cache.match(e.request))));
-            });
-          `;
-          const blob = new Blob([swCode], { type:'text/javascript' });
-          const url = URL.createObjectURL(blob);
-          await navigator.serviceWorker.register(url);
-        }
-      }
-
-      function openLightbox(src){ $('#lightboxImg').src = src; $('#lightbox').classList.add('show'); }
-      $('#lightbox')?.addEventListener('click', e => { if(e.target === $('#lightbox')) $('#lightbox').classList.remove('show'); });
-
-      function renderTicker(){
-        const el = $('#ticker'); el.innerHTML = '';
-        ARTISTS.forEach(a => {
-          const s = priceState[a.ticker]; const prev = s.history[s.history.length-2] || s.last; const pct = ((s.last - prev)/prev*100).toFixed(2);
-          const d = document.createElement('div'); d.className='tick';
-          d.innerHTML = `<div><div style="font-weight:800">${a.ticker}</div><div class="small muted">${a.name}</div></div><div style="text-align:right"><div style="font-weight:900">${s.last.toFixed(2)}</div><div class="small muted" style="color:${pct>=0?var(--success):var(--danger)}">${pct>=0?'+':''}${pct}%</div></div>`;
-          el.appendChild(d);
-        });
-      }
-
-      // Boot
-      function boot(){
-        initNav();
-        registerSW();
-        init3DBackground();
-        init3DArtist();
-        initPrices();
-        renderStakingPool();
-        navigate(location.hash.replace('#','') || 'home');
-      }
-
-      boot();
-    })();
-  </script>
+/* Expose some test hooks for dev console */
+window.AG = {STATE, stepPriceSim, buyArtist, sellArtist, createSoftWallet, connectWallet, generateAiInsight, signFanMessage};
+</script>
 </body>
 </html>
